@@ -6,8 +6,8 @@ def user_type_required(*allowed_types):
         def _wrapper(request, *args, **kwargs):
             if not request.user.is_authenticated:
                 raise PermissionDenied
-            if request.user.user_type not in allowed_types:
-                raise PermissionDenied
-            return view_func(request, *args, **kwargs)
+            if request.user.is_superuser or request.user.is_staff or request.user.user_type in allowed_types:
+                return view_func(request, *args, **kwargs)
+            raise PermissionDenied
         return _wrapper
     return decorator

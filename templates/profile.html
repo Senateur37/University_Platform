@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Mon Profil - University Platform{% endblock %}
+{% block content %}
+<section class="profile-shell">
+  <div class="dashboard-hero">
+    <div style="display:flex;align-items:center;gap:20px;">
+      {% if user.avatar %}
+      <img src="{{ user.avatar.url }}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid white;box-shadow:var(--shadow);">
+      {% else %}
+      <div class="avatar" style="width:72px;height:72px;font-size:1.8rem;box-shadow:var(--shadow);">{{ user.username|first|upper }}</div>
+      {% endif %}
+      <div>
+        <div class="eyebrow">{{ user.get_user_type_display }}</div>
+        <h1>{{ user.get_full_name|default:user.username }}</h1>
+        <p class="muted">{{ user.email|default:'Aucune adresse email spécifiée' }} {% if user.filiere %}· {{ user.filiere }}{% endif %}</p>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <span class="pill success">Compte {% if user.is_validated %}Vérifié{% else %}En attente{% endif %}</span>
+    </div>
+  </div>
+
+  <div class="dashboard-layout" style="margin-top:24px;">
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Informations personnelles</h2>
+      </div>
+      <form method="post" enctype="multipart/form-data" class="styled-form">
+        {% csrf_token %}
+        <input type="hidden" name="update_profile" value="1">
+        
+        {% for field in profile_form %}
+        <div class="field-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+          <div class="field-errors">{% for error in field.errors %}<span>{{ error }}</span>{% endfor %}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="button primary" style="margin-top:10px;">Mettre à jour le profil</button>
+      </form>
+    </article>
+
+    <aside class="panel">
+      <div class="panel-header">
+        <h2>Sécurité du compte</h2>
+      </div>
+      <form method="post" class="styled-form">
+        {% csrf_token %}
+        <input type="hidden" name="change_password" value="1">
+
+        {% for field in password_form %}
+        <div class="field-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+          <div class="field-errors">{% for error in field.errors %}<span>{{ error }}</span>{% endfor %}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="button secondary" style="margin-top:10px;">Changer de mot de passe</button>
+      </form>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .styled-form {
+    display: grid;
+    gap: 16px;
+  }
+  .field-group {
+    display: grid;
+    gap: 6px;
+  }
+  .field-group label {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .styled-form input,
+  .styled-form textarea,
+  .styled-form select {
+    width: 100%;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font: inherit;
+  }
+</style>
+{% endblock %}

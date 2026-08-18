@@ -11,9 +11,14 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file if present
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,6 +46,7 @@ INSTALLED_APPS = [
     'Cours',
     'Missions',
     'Annonces',
+    'Forum',
 ]
 
 MIDDLEWARE = [
@@ -76,12 +82,29 @@ WSGI_APPLICATION = 'Codex.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+USE_POSTGRES = (
+    os.environ.get('USE_POSTGRESQL', '').lower() in ['true', '1', 'yes'] or
+    os.environ.get('DB_ENGINE', '').lower() == 'postgresql'
+)
+
+if USE_POSTGRES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('UNIVERSITY_DB_NAME') or os.environ.get('POSTGRES_DB') or 'university_db',
+            'USER': os.environ.get('POSTGRES_USER') or os.environ.get('DB_USER') or 'postgres',
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD') or os.environ.get('DB_PASSWORD') or 'postgres',
+            'HOST': os.environ.get('POSTGRES_HOST') or os.environ.get('DB_HOST') or 'localhost',
+            'PORT': os.environ.get('POSTGRES_PORT') or os.environ.get('DB_PORT') or '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -101,6 +124,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# Email Backend Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Internationalization

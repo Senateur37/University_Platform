@@ -1,1 +1,144 @@
-{% extends 'base.html' %}{% block title %}{{ course.title }}{% endblock %}{% block content %}<h1>{{ course.title }}</h1><p><strong>{{ course.code }}</strong> · Enseignant: {{ course.teacher.get_full_name|default:course.teacher.username }}</p><p>{{ course.description }}</p>{% if user.user_type == 'student' %}<a class="button" href="{% url 'enroll' course.pk %}">S'inscrire</a>{% endif %}{% if user == course.teacher or user.user_type == 'admin' %}<a class="button secondary" href="{% url 'resource_create' course.pk %}">Ajouter une ressource</a>{% endif %}<h2>Ressources</h2><div class="grid">{% for resource in course.resources.all %}<article class="card"><h3>{{ resource.title }}</h3><p>{{ resource.description }}</p><a href="{{ resource.file.url }}">Télécharger</a></article>{% empty %}<p>Aucune ressource.</p>{% endfor %}</div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}{{ course.code }} – {{ course.title }}{% endblock %}
+{% block content %}
+<section class="course-detail-shell">
+  <!-- Course Header Banner -->
+  <div class="dashboard-hero">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span class="course-badge" style="background:var(--primary);color:white;">{{ course.code }}</span>
+        <span class="pill info">{{ course.category }}</span>
+      </div>
+      <h1>{{ course.title }}</h1>
+      <p class="muted">Enseignant responsable : <strong>{{ course.teacher.get_full_name|default:course.teacher.username }}</strong> · {{ course.students.count }} étudiant(s) inscrit(s)</p>
+    </div>
+    <div class="hero-actions">
+      {% if user.user_type == 'student' %}
+        {% if is_enrolled %}
+          <a class="button secondary" href="{% url 'unenroll' course.pk %}" onclick="return confirm('Se désinscrire de ce cours ?')">Se désinscrire</a>
+        {% else %}
+          <a class="button primary" href="{% url 'enroll' course.pk %}">S'inscrire à ce cours</a>
+        {% endif %}
+      {% endif %}
+
+      {% if user.is_teacher_or_admin %}
+        <a class="button secondary" href="{% url 'resource_create' course.pk %}">📄 + Ajouter un document</a>
+        <a class="button secondary" href="{% url 'course_edit' course.pk %}">✏️ Modifier</a>
+        <a class="button ghost" href="{% url 'course_delete' course.pk %}" style="color:var(--danger);">🗑️ Supprimer</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="dashboard-layout" style="margin-top:24px;">
+    <!-- Main Content -->
+    <div style="display:grid;gap:22px;">
+      <!-- Description Section -->
+      <article class="panel">
+        <div class="panel-header">
+          <h2>À propos de ce cours</h2>
+        </div>
+        <p style="line-height:1.7;white-space:pre-line;">{{ course.description|default:'Aucune description renseignée pour ce cours.' }}</p>
+      </article>
+
+      <!-- Ressources Pédagogiques -->
+      <article class="panel">
+        <div class="panel-header">
+          <h2>📚 Documents & Ressources ({{ course.resources.all|length }})</h2>
+          {% if user.is_teacher_or_admin %}
+          <a class="button primary" href="{% url 'resource_create' course.pk %}" style="padding:6px 14px;font-size:0.82rem;">📄 + Téléverser un document</a>
+          {% endif %}
+        </div>
+        <div class="panel-list">
+          {% for resource in course.resources.all %}
+          <div class="course-item">
+            <div>
+              <strong>{{ resource.title }}</strong>
+              <div class="course-meta">{{ resource.description|default:'Fichier téléchargeable' }} · Ajouté le {{ resource.uploaded_at|date:'d/m/Y' }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              {% if resource.file %}
+              <a href="{{ resource.file.url }}" class="button primary" style="padding:6px 14px;font-size:0.82rem;" target="_blank">📥 Télécharger</a>
+              {% endif %}
+              {% if user.is_teacher_or_admin %}
+              <a href="{% url 'resource_delete' course.pk resource.pk %}" class="button ghost" style="padding:6px 10px;font-size:0.8rem;color:var(--danger);" onclick="return confirm('Supprimer cette ressource ?')">Supprimer</a>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <p class="muted">Aucune ressource pédagogique déposée pour le moment.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <!-- Missions & Devoirs du cours -->
+      <article class="panel">
+        <div class="panel-header">
+          <h2>🎯 Missions du cours ({{ assignments|length }})</h2>
+          {% if is_owner %}
+          <a class="muted" href="{% url 'assignment_create' %}">+ Nouvelle mission</a>
+          {% endif %}
+        </div>
+        <div class="panel-list">
+          {% for assignment in assignments %}
+          <div class="assignment-item">
+            <div>
+              <strong>{{ assignment.title }}</strong>
+              <div class="assignment-meta">Échéance : {{ assignment.due_date|date:'d/m/Y à H:i' }} · Max: {{ assignment.max_points }} pts</div>
+            </div>
+            <a href="{% url 'assignment_detail' assignment.pk %}" class="button secondary" style="padding:6px 14px;font-size:0.82rem;">Consulter</a>
+          </div>
+          {% empty %}
+          <p class="muted">Aucune mission programmée pour ce cours.</p>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
+
+    <!-- Sidebar Right -->
+    <aside style="display:grid;gap:22px;align-content:start;">
+      <!-- Annonces associées au cours -->
+      <article class="panel">
+        <div class="panel-header">
+          <h2>📢 Annonces</h2>
+          {% if is_owner %}
+          <a class="muted" href="{% url 'announcement_create' %}">+ Publier</a>
+          {% endif %}
+        </div>
+        <div class="panel-list">
+          {% for announce in announcements %}
+          <div style="padding-bottom:12px;border-bottom:1px solid var(--line);">
+            <strong style="display:block;margin-bottom:4px;"><a href="{% url 'announcement_detail' announce.pk %}" style="color:inherit;">{{ announce.title }}</a></strong>
+            <p class="muted" style="font-size:0.82rem;margin:0 0 4px;">{{ announce.created_at|date:'d/m/Y H:i' }}</p>
+            <p style="font-size:0.85rem;margin:0;">{{ announce.content|truncatewords:15 }}</p>
+          </div>
+          {% empty %}
+          <p class="muted" style="font-size:0.88rem;">Aucune annonce pour ce cours.</p>
+          {% endfor %}
+        </div>
+      </article>
+
+      <!-- Étudiants inscrits (pour l'enseignant ou l'admin) -->
+      {% if is_owner %}
+      <article class="panel">
+        <div class="panel-header">
+          <h2>👥 Étudiants inscrits ({{ course.students.all|length }})</h2>
+        </div>
+        <div class="panel-list" style="max-height:260px;overflow-y:auto;">
+          {% for student in course.students.all %}
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+            <div class="avatar" style="width:30px;height:30px;font-size:0.8rem;">{{ student.username|first|upper }}</div>
+            <div>
+              <strong style="font-size:0.85rem;">{{ student.get_full_name|default:student.username }}</strong>
+              <div class="muted" style="font-size:0.75rem;">{{ student.email }}</div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="muted" style="font-size:0.88rem;">Aucun étudiant inscrit pour l'instant.</p>
+          {% endfor %}
+        </div>
+      </article>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}

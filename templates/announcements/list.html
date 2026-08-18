@@ -1,1 +1,101 @@
-{% extends 'base.html' %}{% block title %}Annonces{% endblock %}{% block content %}<h1>Annonces</h1>{% if user.user_type == 'teacher' or user.user_type == 'admin' %}<a class="button" href="{% url 'announcement_create' %}">Publier</a>{% endif %}{% for announcement in announcements %}<article class="card"><h2>{{ announcement.title }}</h2><p>{{ announcement.created_at|date:'d/m/Y H:i' }} · {{ announcement.author.get_full_name|default:announcement.author.username }}</p><p>{{ announcement.content }}</p></article>{% empty %}<p>Aucune annonce.</p>{% endfor %}{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Annonces du Campus{% endblock %}
+{% block content %}
+<section class="listing-shell">
+  <div class="listing-header">
+    <div>
+      <div class="eyebrow">Actualités du Campus</div>
+      <h1>Toutes les Annonces</h1>
+    </div>
+    {% if user.is_teacher_or_admin %}
+    <a class="button primary" href="{% url 'announcement_create' %}">+ Publier une annonce</a>
+    {% endif %}
+  </div>
+
+  <div class="list-stack">
+    {% for announcement in announcements %}
+    <article class="announce-card">
+      <div class="announce-top">
+        <div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+            <span class="announce-tag">{{ announcement.course.code|default:'Générale' }}</span>
+            {% if announcement.is_global %}<span class="pill info" style="font-size:0.72rem;">Global</span>{% endif %}
+          </div>
+          <h2><a href="{% url 'announcement_detail' announcement.pk %}" style="color:inherit;">{{ announcement.title }}</a></h2>
+        </div>
+        <span class="announce-date">{{ announcement.created_at|date:'d/m/Y H:i' }}</span>
+      </div>
+      <p class="muted" style="font-size:0.88rem;">Auteur : <strong>{{ announcement.author.get_full_name|default:announcement.author.username }}</strong></p>
+      <p style="line-height:1.6;">{{ announcement.content|truncatewords:40 }}</p>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+        <a href="{% url 'announcement_detail' announcement.pk %}" class="button secondary" style="padding:6px 12px;font-size:0.8rem;">Lire l'annonce complète →</a>
+        {% if user.is_teacher_or_admin %}
+        <div style="display:flex;gap:6px;">
+          <a class="button secondary" href="{% url 'announcement_edit' announcement.pk %}" style="padding:6px 10px;font-size:0.8rem;" title="Modifier">✏️ Modifier</a>
+          <a class="button ghost" href="{% url 'announcement_delete' announcement.pk %}" style="padding:6px 10px;font-size:0.8rem;color:var(--danger);" title="Supprimer">🗑️ Supprimer</a>
+        </div>
+        {% endif %}
+      </div>
+    </article>
+    {% empty %}
+    <article class="announce-card empty-state">
+      <h2>Aucune annonce publiée.</h2>
+      <p class="muted">Les annonces apparaîtront ici dès leur publication.</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+  .listing-shell {
+    display: grid;
+    gap: 20px;
+  }
+
+  .listing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .list-stack {
+    display: grid;
+    gap: 18px;
+  }
+
+  .announce-card {
+    background: rgba(255,255,255,0.85);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 22px;
+  }
+
+  .announce-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .announce-tag {
+    display: inline-flex;
+    padding: 6px 10px;
+    background: rgba(20, 184, 166, 0.08);
+    color: #0f766e;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .announce-date {
+    color: var(--muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}

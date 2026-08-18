@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}{{ assignment.title }} – Mission{% endblock %}
+{% block content %}
+<section class="assignment-detail-shell">
+  <div class="dashboard-hero">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span class="course-badge" style="background:var(--primary);color:white;">{{ assignment.course.code }}</span>
+        <span class="pill info">{{ assignment.course.title }}</span>
+      </div>
+      <h1>{{ assignment.title }}</h1>
+      <p class="muted">
+        📅 Date limite : <strong>{{ assignment.due_date|date:'d/m/Y à H:i' }}</strong> · 
+        Barème : <strong>{{ assignment.max_points }} points</strong>
+      </p>
+    </div>
+
+    <div class="hero-actions">
+      {% if user.is_teacher_or_admin %}
+        <a class="button primary" href="{% url 'assignment_submissions' assignment.pk %}">📋 Voir les rendus (Copies)</a>
+        <a class="button secondary" href="{% url 'assignment_edit' assignment.pk %}">✏️ Modifier</a>
+        <a class="button ghost" href="{% url 'assignment_delete' assignment.pk %}" style="color:var(--danger);">🗑️ Supprimer</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="dashboard-layout" style="margin-top:24px;">
+    <!-- Left instructions -->
+    <div style="display:grid;gap:22px;">
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Consignes de la mission</h2>
+        </div>
+        <p style="line-height:1.7;white-space:pre-line;">{{ assignment.description }}</p>
+
+        {% if assignment.attachment %}
+        <div style="margin-top:20px;padding:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:16px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <strong>📎 Document / Sujet joint</strong>
+            <div class="muted" style="font-size:0.84rem;">Fichier mis à disposition par l'enseignant</div>
+          </div>
+          <a href="{{ assignment.attachment.url }}" class="button primary" style="padding:6px 14px;font-size:0.82rem;" target="_blank">📥 Télécharger le sujet</a>
+        </div>
+        {% endif %}
+      </article>
+    </div>
+
+    <!-- Right student status / submission box -->
+    <aside style="display:grid;gap:22px;align-content:start;">
+      {% if user.user_type == 'student' %}
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Mon travail</h2>
+        </div>
+
+        {% if submission %}
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:16px;border-radius:16px;margin-bottom:16px;">
+            <strong style="color:#047857;display:block;margin-bottom:4px;">✅ Travail rendu</strong>
+            <p style="font-size:0.85rem;margin:0 0 8px;" class="muted">Soumis le {{ submission.submitted_at|date:'d/m/Y H:i' }}</p>
+            <a href="{{ submission.file.url }}" target="_blank" style="font-size:0.88rem;color:var(--primary);font-weight:700;">📄 Voir le fichier déposé</a>
+          </div>
+
+          {% if submission.grade is not None %}
+            <div style="background:rgba(79,70,229,0.08);border:1px solid rgba(79,70,229,0.2);padding:16px;border-radius:16px;margin-bottom:16px;">
+              <strong style="color:var(--primary);font-size:1.1rem;display:block;margin-bottom:4px;">Résultat : {{ submission.grade }} / {{ assignment.max_points }}</strong>
+              {% if submission.feedback %}
+              <div style="margin-top:8px;">
+                <span class="muted" style="font-size:0.8rem;display:block;">Commentaire de l'enseignant :</span>
+                <p style="font-size:0.9rem;margin:4px 0 0;font-style:italic;">« {{ submission.feedback }} »</p>
+              </div>
+              {% endif %}
+            </div>
+          {% else %}
+            <p class="muted" style="font-size:0.88rem;">Votre copie n'a pas encore été notée par l'enseignant.</p>
+          {% endif %}
+
+          <a href="{% url 'submit_assignment' assignment.pk %}" class="button secondary" style="width:100%;text-align:center;">Remplacer mon fichier</a>
+
+        {% else %}
+          <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);padding:16px;border-radius:16px;margin-bottom:16px;">
+            <strong style="color:#b45309;display:block;margin-bottom:4px;">⚠️ Non rendu</strong>
+            <p style="font-size:0.85rem;margin:0;" class="muted">Veuillez déposer votre devoir avant la date limite.</p>
+          </div>
+
+          <a href="{% url 'submit_assignment' assignment.pk %}" class="button primary" style="width:100%;text-align:center;">Deposer mon devoir</a>
+        {% endif %}
+      </article>
+      {% endif %}
+
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Rappels</h2>
+        </div>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.6;margin:0;">
+          Assurez-vous que vos fichiers sont au format accepté (PDF, ZIP, DOCX) et que votre nom figure dans le document si nécessaire.
+        </p>
+      </article>
+    </aside>
+  </div>
+</section>
+{% endblock %}

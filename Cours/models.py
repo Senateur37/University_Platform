@@ -5,6 +5,7 @@ from django.conf import settings
 class Course(models.Model):
     title = models.CharField(max_length=200)
     code = models.CharField(max_length=50, unique=True)  # ex: INFO101
+    category = models.CharField(max_length=100, default="Informatique", blank=True, verbose_name="Filière / Catégorie")
     description = models.TextField(blank=True)
     teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -1,1 +1,63 @@
-{% extends 'base.html' %}{% block title %}Missions{% endblock %}{% block content %}<h1>Missions</h1>{% if user.user_type == 'teacher' or user.user_type == 'admin' %}<a class="button" href="{% url 'assignment_create' %}">Nouvelle mission</a>{% endif %}<div class="grid">{% for assignment in assignments %}<article class="card"><h2>{{ assignment.title }}</h2><p>{{ assignment.course.title }} · Échéance: {{ assignment.due_date|date:'d/m/Y H:i' }}</p><p>{{ assignment.description }}</p>{% if user.user_type == 'student' %}<a class="button" href="{% url 'submit_assignment' assignment.pk %}">Rendre la mission</a>{% endif %}</article>{% empty %}<p>Aucune mission.</p>{% endfor %}</div>{% endblock %}
+{% extends 'base.html' %}
+{% load mission_extras %}
+{% block title %}Missions & Devoirs - University Platform{% endblock %}
+{% block content %}
+<section class="listing-shell">
+  <div class="listing-header">
+    <div>
+      <div class="eyebrow">Évaluations du Campus</div>
+      <h1>Missions & Devoirs</h1>
+    </div>
+    {% if user.is_teacher_or_admin %}
+    <a class="button primary" href="{% url 'assignment_create' %}">+ Nouvelle mission</a>
+    {% endif %}
+  </div>
+
+  <div class="grid">
+    {% for assignment in assignments %}
+    <article class="feature-card">
+      <div class="card-top">
+        <span class="course-badge">{{ assignment.course.code }}</span>
+        {% if assignment.due_date < now %}
+        <span class="mini-pill" style="background:rgba(239,68,68,0.08);color:var(--danger);">Terminé</span>
+        {% else %}
+        <span class="mini-pill" style="background:rgba(245,158,11,0.08);color:#b45309;">Limite : {{ assignment.due_date|date:'d/m/Y H:i' }}</span>
+        {% endif %}
+      </div>
+
+      <h2><a href="{% url 'assignment_detail' assignment.pk %}" style="color:inherit;">{{ assignment.title }}</a></h2>
+      <p class="muted">{{ assignment.course.title }} · Note max : {{ assignment.max_points }} pts</p>
+      <p style="font-size:0.9rem;line-height:1.6;">{{ assignment.description|truncatewords:20 }}</p>
+
+      <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+        {% if user.user_type == 'student' %}
+          {% with sub=submissions_dict|get_item:assignment.pk %}
+            {% if sub %}
+              {% if sub.grade is not None %}
+                <span class="pill success" style="font-size:0.85rem;">Note : {{ sub.grade }}/{{ assignment.max_points }}</span>
+              {% else %}
+                <span class="pill warning">Rendu en attente de note</span>
+              {% endif %}
+            {% else %}
+              <span class="pill info">Non rendu</span>
+            {% endif %}
+          {% endwith %}
+        {% endif %}
+        <div style="display:flex;gap:6px;align-items:center;">
+          <a class="button secondary" href="{% url 'assignment_detail' assignment.pk %}" style="padding:6px 14px;font-size:0.82rem;">Consulter →</a>
+          {% if user.is_teacher_or_admin %}
+          <a class="button secondary" href="{% url 'assignment_edit' assignment.pk %}" style="padding:6px 10px;font-size:0.82rem;" title="Modifier">✏️</a>
+          <a class="button ghost" href="{% url 'assignment_delete' assignment.pk %}" style="padding:6px 10px;font-size:0.82rem;color:var(--danger);" title="Supprimer">🗑️</a>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+    {% empty %}
+    <article class="feature-card empty-state">
+      <h2>Aucune mission programmée.</h2>
+      <p class="muted">Les devoirs apparaîtront ici dès leur publication par vos enseignants.</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

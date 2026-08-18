@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Copies rendues – {{ assignment.title }}{% endblock %}
+{% block content %}
+<section class="listing-shell">
+  <div class="listing-header">
+    <div>
+      <div class="eyebrow">Correction & Evaluation</div>
+      <h1>Copies rendues : {{ assignment.title }}</h1>
+      <p class="muted">{{ assignment.course.code }} – {{ assignment.course.title }} · Barème max : {{ assignment.max_points }} pts</p>
+    </div>
+    <a href="{% url 'assignment_detail' assignment.pk %}" class="button secondary">← Retour à la mission</a>
+  </div>
+
+  <div class="panel" style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.9rem;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--line);color:var(--muted);">
+          <th style="padding:12px 14px;">Étudiant</th>
+          <th style="padding:12px 14px;">Date de rendu</th>
+          <th style="padding:12px 14px;">Fichier soumis</th>
+          <th style="padding:12px 14px;">Note (/{{ assignment.max_points }})</th>
+          <th style="padding:12px 14px;">Commentaire</th>
+          <th style="padding:12px 14px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr style="border-bottom:1px solid var(--line);">
+          <td style="padding:12px 14px;font-weight:700;">
+            {{ sub.student.get_full_name|default:sub.student.username }}
+            <div class="muted" style="font-size:0.78rem;">{{ sub.student.email }}</div>
+          </td>
+          <td style="padding:12px 14px;">{{ sub.submitted_at|date:'d/m/Y H:i' }}</td>
+          <td style="padding:12px 14px;">
+            {% if sub.file %}
+            <a href="{{ sub.file.url }}" target="_blank" class="button ghost" style="padding:4px 10px;font-size:0.8rem;">📄 Fichier</a>
+            {% else %}
+            <span class="muted" style="font-size:0.8rem;">—</span>
+            {% endif %}
+          </td>
+          <td style="padding:12px 14px;">
+            {% if sub.grade is not None %}
+            <span class="pill success" style="font-size:0.9rem;font-weight:800;">{{ sub.grade }} / {{ assignment.max_points }}</span>
+            {% else %}
+            <span class="pill warning">Non noté</span>
+            {% endif %}
+          </td>
+          <td style="padding:12px 14px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" class="muted">
+            {{ sub.feedback|default:'—' }}
+          </td>
+          <td style="padding:12px 14px;">
+            <a href="{% url 'grade_submission' assignment.pk sub.pk %}" class="button primary" style="padding:6px 12px;font-size:0.8rem;">
+              {% if sub.grade is not None %}Modifier note{% else %}Évaluer{% endif %}
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding:24px;text-align:center;" class="muted">Aucune copie rendue pour le moment.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

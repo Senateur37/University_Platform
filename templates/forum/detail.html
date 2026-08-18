@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}{{ topic.title }} - Forum Codex{% endblock %}
+
+{% block content %}
+<section class="detail-shell">
+  <div style="margin-bottom:16px;">
+    <a href="{% url 'topic_list' %}" class="muted" style="text-decoration:none;">← Retour aux discussions du forum</a>
+  </div>
+
+  <article class="hero-banner" style="padding:28px 32px;">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+      {% if topic.is_pinned %}<span class="pill warning">📌 Épinglé</span>{% endif %}
+      {% if topic.is_closed %}<span class="pill danger">🔒 Verrouillé</span>{% endif %}
+      {% if topic.category %}
+      <span class="pill secondary">{{ topic.category.icon }} {{ topic.category.name }}</span>
+      {% endif %}
+      {% if topic.course %}
+      <span class="pill secondary" style="background:rgba(59,130,246,0.1);color:#2563eb;">📚 {{ topic.course.code }} - {{ topic.course.title }}</span>
+      {% endif %}
+    </div>
+
+    <h1 style="font-size:1.8rem;margin:6px 0 12px;">{{ topic.title }}</h1>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:16px;border-top:1px solid rgba(255,255,255,0.15);padding-top:14px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        {% if topic.author.avatar %}
+        <img src="{{ topic.author.avatar.url }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}">
+        {% else %}
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">
+          {{ topic.author.username|first|upper }}
+        </div>
+        {% endif %}
+        <div>
+          <strong style="font-size:0.95rem;">{{ topic.author.get_full_name|default:topic.author.username }}</strong>
+          <div style="font-size:0.78rem;opacity:0.8;">{{ topic.author.get_user_type_display }} · {{ topic.created_at|date:"d/m/Y à H:i" }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center;">
+        {% if user.is_teacher_or_admin %}
+        <form action="{% url 'topic_toggle_pin' topic.pk %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="button secondary" style="padding:6px 12px;font-size:0.8rem;">
+            {% if topic.is_pinned %}📌 Désépingler{% else %}📌 Épingler{% endif %}
+          </button>
+        </form>
+        <form action="{% url 'topic_toggle_close' topic.pk %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="button secondary" style="padding:6px 12px;font-size:0.8rem;">
+            {% if topic.is_closed %}🔓 Déverrouiller{% else %}🔒 Verrouiller{% endif %}
+          </button>
+        </form>
+        {% endif %}
+
+        {% if is_author_or_admin %}
+        <a href="{% url 'topic_edit' topic.pk %}" class="button secondary" style="padding:6px 12px;font-size:0.8rem;">✏️ Modifier</a>
+        <a href="{% url 'topic_delete' topic.pk %}" class="button ghost" style="padding:6px 12px;font-size:0.8rem;color:var(--danger);">🗑️ Supprimer</a>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+
+  <!-- Topic Original Message Content -->
+  <article class="panel" style="margin-top:20px;">
+    <div class="panel-header">
+      <h2>Question / Sujet initial</h2>
+    </div>
+    <p style="line-height:1.7;white-space:pre-line;font-size:1.02rem;color:var(--ink);">{{ topic.content }}</p>
+  </article>
+
+  <!-- Replies List -->
+  <article class="panel" style="margin-top:24px;">
+    <div class="panel-header">
+      <h2>💬 Réponses ({{ posts|length }})</h2>
+    </div>
+
+    <div class="panel-list">
+      {% for post in posts %}
+      <div class="course-item" style="padding:16px 20px;align-items:flex-start;">
+        {% if post.author.avatar %}
+        <img src="{{ post.author.avatar.url }}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;" alt="{{ post.author.username }}">
+        {% else %}
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--sidebar);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;">
+          {{ post.author.username|first|upper }}
+        </div>
+        {% endif %}
+
+        <div style="flex:1;margin-left:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div>
+              <strong style="font-size:0.92rem;">{{ post.author.get_full_name|default:post.author.username }}</strong>
+              <span class="pill secondary" style="font-size:0.72rem;margin-left:6px;">{{ post.author.get_user_type_display }}</span>
+              <span class="muted" style="font-size:0.78rem;margin-left:8px;">{{ post.created_at|date:"d/m/Y à H:i" }}</span>
+            </div>
+
+            {% if user == post.author or user.is_teacher_or_admin %}
+            <form action="{% url 'post_delete' topic.pk post.pk %}" method="post" onsubmit="return confirm('Supprimer cette réponse ?');" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="button ghost" style="padding:4px 8px;font-size:0.75rem;color:var(--danger);">Supprimer</button>
+            </form>
+            {% endif %}
+          </div>
+
+          <p style="line-height:1.6;white-space:pre-line;margin:0;font-size:0.95rem;color:var(--ink);">{{ post.content }}</p>
+        </div>
+      </div>
+      {% empty %}
+      <div style="padding:24px;text-align:center;" class="muted">
+        Aucune réponse pour l'instant. Soyez le premier à répondre à ce sujet !
+      </div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <!-- Reply Input Form -->
+  <article class="panel" style="margin-top:24px;">
+    <div class="panel-header">
+      <h2>Participer au débat</h2>
+    </div>
+
+    {% if topic.is_closed and not user.is_teacher_or_admin %}
+    <div class="pill danger" style="padding:12px 18px;width:100%;text-align:center;font-size:0.9rem;">
+      🔒 Cette discussion a été verrouillée par un administrateur ou enseignant.
+    </div>
+    {% elif user.is_authenticated %}
+    <form action="{% url 'post_create' topic.pk %}" method="post" style="display:grid;gap:14px;">
+      {% csrf_token %}
+      {{ form.content }}
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="submit" class="button primary">Envoyer la réponse</button>
+      </div>
+    </form>
+    {% else %}
+    <p class="muted">Vous devez être <a href="{% url 'login' %}">connecté</a> pour pouvoir participer au forum.</p>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

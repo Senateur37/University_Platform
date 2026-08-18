@@ -1,1 +1,161 @@
-{% extends 'base.html' %}{% block title %}Accueil{% endblock %}{% block content %}<h1>Apprendre, partager, progresser.</h1><p>La plateforme universitaire pour suivre vos cours, rendre vos missions et rester informé.</p><p><a class="button" href="{% url 'course_list' %}">Explorer les cours</a> <a class="button secondary" href="{% url 'register' %}">Créer un compte</a></p>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<section class="hero-landing">
+  <div class="hero-copy">
+    <div class="eyebrow">University platform</div>
+    <h1>Apprendre, partager, progresser.</h1>
+    <p>Une plateforme moderne pour suivre les cours, organiser les missions et rester connecté à toute la vie universitaire.</p>
+    <div class="cta-row">
+      <a class="button primary" href="{% url 'course_list' %}">Explorer les cours</a>
+      <a class="button secondary" href="{% url 'register' %}">Créer un compte</a>
+    </div>
+  </div>
+
+  <div class="hero-panel">
+    <div class="panel-card stat-top">
+      <span class="tiny-label">Campus</span>
+      <strong>24k+</strong>
+      <small>Étudiants actifs</small>
+    </div>
+    <div class="panel-card stat-mid">
+      <span class="tiny-label">Cours</span>
+      <strong>120+</strong>
+      <small>Modules disponibles</small>
+    </div>
+    <div class="panel-card stat-bottom">
+      <span class="tiny-label">Suivi</span>
+      <strong>98%</strong>
+      <small>Satisfaction</small>
+    </div>
+  </div>
+</section>
+
+<section class="feature-grid">
+  <article class="feature-card">
+    <span class="feature-icon">▣</span>
+    <h2>Cours structurés</h2>
+    <p>Accédez à un accès clair et organisé à chaque module, ressources et parcours.</p>
+  </article>
+  <article class="feature-card">
+    <span class="feature-icon">✓</span>
+    <h2>Missions faciles</h2>
+    <p>Suivez les échéances, soumettez vos travaux et gardez une vue globale.</p>
+  </article>
+  <article class="feature-card">
+    <span class="feature-icon">◌</span>
+    <h2>Communication fluide</h2>
+    <p>Recevez annonces, mises à jour et informations importantes en temps réel.</p>
+  </article>
+</section>
+
+<style>
+  .hero-landing {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.8fr);
+    gap: 28px;
+    align-items: center;
+    padding: 20px 0 30px;
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: 18px;
+  }
+
+  .hero-copy h1 {
+    margin: 0;
+  }
+
+  .hero-copy p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.7;
+    max-width: 620px;
+  }
+
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .hero-panel {
+    display: grid;
+    gap: 18px;
+  }
+
+  .panel-card {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(148,163,184,0.2);
+    border-radius: 24px;
+    box-shadow: 0 18px 38px rgba(15,23,42,0.08);
+    padding: 22px 20px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .tiny-label {
+    color: var(--primary);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+
+  .panel-card strong {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    letter-spacing: -0.05em;
+  }
+
+  .panel-card small {
+    color: var(--muted);
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .feature-card {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(148,163,184,0.2);
+    border-radius: 24px;
+    box-shadow: 0 18px 38px rgba(15,23,42,0.08);
+    padding: 22px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .feature-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--primary);
+    font-weight: 800;
+  }
+
+  .feature-card h2 {
+    margin: 0;
+  }
+
+  .feature-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 820px) {
+    .hero-landing {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}

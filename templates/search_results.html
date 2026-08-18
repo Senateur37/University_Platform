@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Résultats de recherche - {{ query }}{% endblock %}
+{% block content %}
+<section class="listing-shell">
+  <div class="listing-header">
+    <div>
+      <div class="eyebrow">Résultats de recherche</div>
+      <h1>« {{ query }} »</h1>
+    </div>
+  </div>
+
+  {% if not courses and not assignments and not announcements %}
+  <article class="panel" style="text-align:center;padding:40px;">
+    <h2>Aucun résultat trouvé</h2>
+    <p class="muted">Essayez un autre mot-clé (ex: "Info", "Devoir", "Campus"...)</p>
+  </article>
+  {% endif %}
+
+  {% if courses %}
+  <div style="margin-top:10px;">
+    <h2>Cours ({{ courses|length }})</h2>
+    <div class="grid" style="margin-top:12px;">
+      {% for course in courses %}
+      <article class="feature-card">
+        <div class="card-top">
+          <span class="course-badge">{{ course.code }}</span>
+          <span class="mini-pill">{{ course.category }}</span>
+        </div>
+        <h3>{{ course.title }}</h3>
+        <p class="muted">Enseignant : {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
+        <a class="button secondary" href="{% url 'course_detail' course.pk %}">Ouvrir le cours</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if assignments %}
+  <div style="margin-top:24px;">
+    <h2>Missions / Devoirs ({{ assignments|length }})</h2>
+    <div class="grid" style="margin-top:12px;">
+      {% for assignment in assignments %}
+      <article class="feature-card">
+        <div class="card-top">
+          <span class="course-badge">{{ assignment.course.code }}</span>
+          <span class="mini-pill">{{ assignment.due_date|date:'d/m/Y' }}</span>
+        </div>
+        <h3>{{ assignment.title }}</h3>
+        <p class="muted">{{ assignment.course.title }}</p>
+        <a class="button secondary" href="{% url 'assignment_detail' assignment.pk %}">Voir la mission</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if announcements %}
+  <div style="margin-top:24px;">
+    <h2>Annonces ({{ announcements|length }})</h2>
+    <div class="list-stack" style="margin-top:12px;">
+      {% for announcement in announcements %}
+      <article class="announce-card">
+        <div class="announce-top">
+          <div>
+            <span class="announce-tag">{{ announcement.course.code|default:'Campus' }}</span>
+            <h3><a href="{% url 'announcement_detail' announcement.pk %}" style="color:inherit;">{{ announcement.title }}</a></h3>
+          </div>
+          <span class="announce-date">{{ announcement.created_at|date:'d/m/Y' }}</span>
+        </div>
+        <p>{{ announcement.content|truncatewords:30 }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

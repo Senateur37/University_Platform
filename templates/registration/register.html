@@ -1,0 +1,531 @@
+{% extends 'base.html' %}
+{% block title %}Créer un compte - Campus Codex{% endblock %}
+
+{% block content %}
+<section class="premium-auth-container">
+  <div class="premium-auth-card">
+    
+    <!-- Left Showcase Side -->
+    <div class="auth-showcase">
+      <div class="showcase-glow"></div>
+      <div class="showcase-content">
+        <div class="showcase-brand">
+          <span class="showcase-logo">U</span>
+          <span class="showcase-name">University Platform</span>
+        </div>
+
+        <div class="showcase-hero">
+          <h2>Rejoignez votre communauté académique.</h2>
+          <p>Créez votre compte en quelques instants pour accéder à vos cours, travaux dirigés, résultats et forums d'échange.</p>
+        </div>
+
+        <div class="showcase-features">
+          <div class="feature-item">
+            <span class="feature-icon">🎓</span>
+            <div>
+              <strong>Compte Étudiant ou Enseignant</strong>
+              <div class="feature-sub">Accès personnalisé selon votre statut</div>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <span class="feature-icon">📚</span>
+            <div>
+              <strong>Espace Pédagogique Intégré</strong>
+              <div class="feature-sub">Supports de cours, devoirs et ressources 24/7</div>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <span class="feature-icon">📊</span>
+            <div>
+              <strong>Suivi & Statistiques</strong>
+              <div class="feature-sub">Visualisez vos résultats et progression</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-footer">
+          <div class="user-avatars">
+            <span class="mini-avatar" style="background:#4f46e5;">A</span>
+            <span class="mini-avatar" style="background:#10b981;">P</span>
+            <span class="mini-avatar" style="background:#f59e0b;">E</span>
+          </div>
+          <span style="font-size:0.82rem;opacity:0.85;">Inscrivez-vous et accédez immédiatement à votre tableau de bord</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Registration Form Side -->
+    <div class="auth-form-side">
+      <div class="auth-form-header">
+        <span class="pill primary" style="font-size:0.78rem;font-weight:700;margin-bottom:8px;display:inline-block;">✨ Inscription Gratuite</span>
+        <h1 style="font-size:1.8rem;margin:4px 0 6px;">Créer votre compte</h1>
+        <p class="muted" style="font-size:0.9rem;margin:0;">Complétez vos informations pour vous inscrire.</p>
+      </div>
+
+      <form method="post" class="premium-form" style="margin-top:18px;">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="form-errors-banner">
+          {% for error in form.non_field_errors %}
+          <p>⚠️ {{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Role Choice Cards -->
+        <div class="input-group">
+          <label>Choisissez votre statut sur le campus</label>
+          <div class="role-selector-grid">
+            <label class="role-card">
+              <input type="radio" name="user_type" value="student" {% if form.user_type.value == 'student' or not form.user_type.value %}checked{% endif %}>
+              <div class="role-card-content">
+                <span class="role-icon">🎓</span>
+                <span class="role-title">Étudiant</span>
+              </div>
+            </label>
+            <label class="role-card">
+              <input type="radio" name="user_type" value="teacher" {% if form.user_type.value == 'teacher' %}checked{% endif %}>
+              <div class="role-card-content">
+                <span class="role-icon">👨‍🏫</span>
+                <span class="role-title">Enseignant</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="id_username">Nom d'utilisateur</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" name="username" id="id_username" placeholder="ex: alice_l" required value="{{ form.username.value|default:'' }}">
+          </div>
+          {% if form.username.errors %}<div class="field-error">{% for e in form.username.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div class="input-group">
+          <label for="id_email">Adresse Email Universitaire</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input type="email" name="email" id="id_email" placeholder="alice@etudiant.univ.fr" required value="{{ form.email.value|default:'' }}">
+          </div>
+          {% if form.email.errors %}<div class="field-error">{% for e in form.email.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div class="form-row-2">
+          <div class="input-group">
+            <label for="id_first_name">Prénom</label>
+            <input type="text" name="first_name" id="id_first_name" placeholder="Alice" required value="{{ form.first_name.value|default:'' }}" class="simple-input">
+            {% if form.first_name.errors %}<div class="field-error">{% for e in form.first_name.errors %}{{ e }}{% endfor %}</div>{% endif %}
+          </div>
+          <div class="input-group">
+            <label for="id_last_name">Nom</label>
+            <input type="text" name="last_name" id="id_last_name" placeholder="Lefebvre" required value="{{ form.last_name.value|default:'' }}" class="simple-input">
+            {% if form.last_name.errors %}<div class="field-error">{% for e in form.last_name.errors %}{{ e }}{% endfor %}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="id_filiere">Filière / Département</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🏫</span>
+            <input type="text" name="filiere" id="id_filiere" placeholder="ex: Informatique L2, Mathématiques..." value="{{ form.filiere.value|default:'' }}">
+          </div>
+          {% if form.filiere.errors %}<div class="field-error">{% for e in form.filiere.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div class="form-row-2">
+          <div class="input-group">
+            <label for="id_password">Mot de passe</label>
+            <div class="input-wrapper">
+              <input type="password" name="password" id="id_password" placeholder="••••••••" required class="simple-input">
+              <button type="button" class="toggle-password" onclick="togglePwd('id_password')">👁️</button>
+            </div>
+            {% if form.password.errors %}<div class="field-error">{% for e in form.password.errors %}{{ e }}{% endfor %}</div>{% endif %}
+          </div>
+          <div class="input-group">
+            <label for="id_password_confirmation">Confirmation</label>
+            <div class="input-wrapper">
+              <input type="password" name="password_confirmation" id="id_password_confirmation" placeholder="••••••••" required class="simple-input">
+              <button type="button" class="toggle-password" onclick="togglePwd('id_password_confirmation')">👁️</button>
+            </div>
+            {% if form.password_confirmation.errors %}<div class="field-error">{% for e in form.password_confirmation.errors %}{{ e }}{% endfor %}</div>{% endif %}
+          </div>
+        </div>
+
+        <button type="submit" class="button primary submit-btn">
+          <span>Créer mon compte</span>
+          <span style="font-size:1.1rem;margin-left:6px;">→</span>
+        </button>
+      </form>
+
+      <div class="auth-form-footer">
+        <span>Vous avez déjà un compte ?</span>
+        <a href="{% url 'login' %}" class="register-link">Se connecter</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  function togglePwd(inputId) {
+    const input = document.getElementById(inputId);
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+</script>
+
+<style>
+  .premium-auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 32px 16px;
+  }
+
+  .premium-auth-card {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    width: min(1040px, 100%);
+    background: #ffffff;
+    border-radius: 28px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.15);
+    overflow: hidden;
+  }
+
+  /* Left Showcase */
+  .auth-showcase {
+    position: relative;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    color: #ffffff;
+    padding: 40px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  .showcase-glow {
+    position: absolute;
+    top: -30%;
+    left: -30%;
+    width: 160%;
+    height: 160%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0) 70%);
+    pointer-events: none;
+  }
+
+  .showcase-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+  }
+
+  .showcase-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .showcase-logo {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.35);
+  }
+
+  .showcase-name {
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .showcase-hero {
+    margin: 28px 0 24px;
+  }
+
+  .showcase-hero h2 {
+    font-size: 1.65rem;
+    line-height: 1.3;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #ffffff;
+  }
+
+  .showcase-hero p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(226, 232, 240, 0.85);
+  }
+
+  .showcase-features {
+    display: grid;
+    gap: 16px;
+  }
+
+  .feature-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+  }
+
+  .feature-icon {
+    font-size: 1.3rem;
+  }
+
+  .feature-sub {
+    font-size: 0.78rem;
+    color: rgba(226, 232, 240, 0.7);
+  }
+
+  .showcase-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .user-avatars {
+    display: flex;
+  }
+
+  .mini-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 2px solid #0f172a;
+    margin-left: -6px;
+  }
+
+  .mini-avatar:first-child {
+    margin-left: 0;
+  }
+
+  /* Right Form Side */
+  .auth-form-side {
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #ffffff;
+  }
+
+  .role-selector-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .role-card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .role-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .role-card-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 14px;
+    transition: all 0.2s ease;
+  }
+
+  .role-card input[type="radio"]:checked + .role-card-content {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.06);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+  }
+
+  .role-icon {
+    font-size: 1.2rem;
+  }
+
+  .role-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  .premium-form {
+    display: grid;
+    gap: 16px;
+  }
+
+  .form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .input-group {
+    display: grid;
+    gap: 6px;
+  }
+
+  .input-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .input-wrapper input {
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  .simple-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: #ffffff;
+    transition: all 0.2s ease;
+  }
+
+  .input-wrapper input:focus,
+  .simple-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .toggle-password:hover {
+    opacity: 1;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    border-radius: 14px;
+    justify-content: center;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+    margin-top: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px -5px rgba(79, 70, 229, 0.5);
+  }
+
+  .form-errors-banner {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+  }
+
+  .field-error {
+    color: #dc2626;
+    font-size: 0.78rem;
+    margin-top: 3px;
+  }
+
+  .auth-form-footer {
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .register-link {
+    font-weight: 700;
+    color: #4f46e5;
+    text-decoration: none;
+    margin-left: 6px;
+  }
+
+  .register-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 880px) {
+    .premium-auth-card {
+      grid-template-columns: 1fr;
+    }
+    .auth-showcase {
+      display: none;
+    }
+    .auth-form-side {
+      padding: 28px 20px;
+    }
+    .form-row-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}

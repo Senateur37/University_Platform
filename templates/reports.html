@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}Rapports & Graphiques Statistiques - Campus Codex{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<section class="listing-shell">
+  <div class="listing-header" style="display:flex;justify-content:space-between;align-items:flex-end;">
+    <div>
+      <div class="eyebrow">Analytique & Performances</div>
+      <h1>Rapports & Graphiques Statistiques 📊</h1>
+    </div>
+    <a class="button primary" href="{% url 'reports' %}?export=csv">📥 Exporter le rapport (CSV)</a>
+  </div>
+
+  <!-- KPI Cards Grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:18px;margin-bottom:28px;">
+    <div class="panel" style="padding:20px;text-align:center;">
+      <div class="muted" style="font-size:0.85rem;margin-bottom:6px;">🎓 Étudiants Inscrits</div>
+      <div style="font-size:2.2rem;font-weight:800;color:var(--ink);">{{ total_students }}</div>
+    </div>
+    <div class="panel" style="padding:20px;text-align:center;">
+      <div class="muted" style="font-size:0.85rem;margin-bottom:6px;">👨‍🏫 Enseignants</div>
+      <div style="font-size:2.2rem;font-weight:800;color:var(--ink);">{{ total_teachers }}</div>
+    </div>
+    <div class="panel" style="padding:20px;text-align:center;">
+      <div class="muted" style="font-size:0.85rem;margin-bottom:6px;">📚 Cours Actifs</div>
+      <div style="font-size:2.2rem;font-weight:800;color:var(--accent);">{{ total_courses }}</div>
+    </div>
+    <div class="panel" style="padding:20px;text-align:center;">
+      <div class="muted" style="font-size:0.85rem;margin-bottom:6px;">🎯 Missions & Devoirs</div>
+      <div style="font-size:2.2rem;font-weight:800;color:var(--ink);">{{ total_assignments }}</div>
+    </div>
+    <div class="panel" style="padding:20px;text-align:center;">
+      <div class="muted" style="font-size:0.85rem;margin-bottom:6px;">📥 Devoirs Rendus</div>
+      <div style="font-size:2.2rem;font-weight:800;color:var(--ink);">{{ total_submissions }}</div>
+    </div>
+    <div class="panel" style="padding:20px;text-align:center;background:linear-gradient(135deg, rgba(79,70,229,0.06) 0%, rgba(59,130,246,0.06) 100%);">
+      <div class="muted" style="font-size:0.85rem;margin-bottom:6px;">⭐ Moyenne Générale</div>
+      <div style="font-size:2.2rem;font-weight:800;color:var(--accent);">{{ overall_avg_grade }} / 20</div>
+    </div>
+  </div>
+
+  <!-- Interactive Charts Grid -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:22px;margin-bottom:28px;">
+    <!-- Chart 1: Donut Grade Distribution -->
+    <article class="panel" style="display:flex;flex-direction:column;">
+      <div class="panel-header">
+        <h2>📊 Répartition des Mentions (Notes)</h2>
+      </div>
+      <div style="position:relative;height:260px;display:flex;justify-content:center;align-items:center;padding:10px;">
+        <canvas id="gradesChart"></canvas>
+      </div>
+    </article>
+
+    <!-- Chart 2: Course Averages Bar Chart -->
+    <article class="panel" style="display:flex;flex-direction:column;">
+      <div class="panel-header">
+        <h2>📈 Moyenne des Notes par Cours (/20)</h2>
+      </div>
+      <div style="position:relative;height:260px;display:flex;justify-content:center;align-items:center;padding:10px;">
+        <canvas id="coursesChart"></canvas>
+      </div>
+    </article>
+  </div>
+
+  <div class="dashboard-layout">
+    <div style="display:grid;gap:24px;">
+
+      <!-- Grade Distribution Cards -->
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Détail des Mentions</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:14px;">
+          <div style="padding:12px;border-radius:10px;background:rgba(16,185,129,0.08);border-left:4px solid #10b981;">
+            <div style="font-weight:700;color:#047857;">Très Bien (≥ 16/20)</div>
+            <div style="font-size:1.3rem;font-weight:800;margin-top:4px;">{{ grade_excellent }} <span style="font-size:0.85rem;font-weight:400;" class="muted">({{ pct_excellent }}%)</span></div>
+          </div>
+          <div style="padding:12px;border-radius:10px;background:rgba(59,130,246,0.08);border-left:4px solid #3b82f6;">
+            <div style="font-weight:700;color:#1d4ed8;">Bien (14 à 16/20)</div>
+            <div style="font-size:1.3rem;font-weight:800;margin-top:4px;">{{ grade_good }} <span style="font-size:0.85rem;font-weight:400;" class="muted">({{ pct_good }}%)</span></div>
+          </div>
+          <div style="padding:12px;border-radius:10px;background:rgba(245,158,11,0.08);border-left:4px solid #f59e0b;">
+            <div style="font-weight:700;color:#b45309;">Moyen (10 à 14/20)</div>
+            <div style="font-size:1.3rem;font-weight:800;margin-top:4px;">{{ grade_average }} <span style="font-size:0.85rem;font-weight:400;" class="muted">({{ pct_average }}%)</span></div>
+          </div>
+          <div style="padding:12px;border-radius:10px;background:rgba(239,68,68,0.08);border-left:4px solid #ef4444;">
+            <div style="font-weight:700;color:#b91c1c;">Insuffisant (< 10/20)</div>
+            <div style="font-size:1.3rem;font-weight:800;margin-top:4px;">{{ grade_poor }} <span style="font-size:0.85rem;font-weight:400;" class="muted">({{ pct_poor }}%)</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Course Stats Table -->
+      <article class="panel" style="overflow-x:auto;">
+        <div class="panel-header">
+          <h2>📚 Performances Détaillées par Cours</h2>
+        </div>
+        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.9rem;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--line);color:var(--muted);">
+              <th style="padding:12px 14px;">Cours</th>
+              <th style="padding:12px 14px;">Enseignant</th>
+              <th style="padding:12px 14px;text-align:center;">Étudiants</th>
+              <th style="padding:12px 14px;text-align:center;">Missions</th>
+              <th style="padding:12px 14px;text-align:center;">Ressources</th>
+              <th style="padding:12px 14px;text-align:right;">Moyenne du cours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cs in course_stats %}
+            <tr style="border-bottom:1px solid var(--line);">
+              <td style="padding:12px 14px;">
+                <strong><a href="{% url 'course_detail' cs.pk %}" style="text-decoration:none;color:var(--ink);">{{ cs.code }} - {{ cs.title }}</a></strong>
+                <div class="muted" style="font-size:0.78rem;">{{ cs.category }}</div>
+              </td>
+              <td style="padding:12px 14px;">{{ cs.teacher.get_full_name|default:cs.teacher.username }}</td>
+              <td style="padding:12px 14px;text-align:center;font-weight:700;">{{ cs.students_count }}</td>
+              <td style="padding:12px 14px;text-align:center;">{{ cs.assignments_count }}</td>
+              <td style="padding:12px 14px;text-align:center;">{{ cs.resources_count }}</td>
+              <td style="padding:12px 14px;text-align:right;font-weight:800;color:var(--accent);">
+                {% if cs.avg_course_grade %}
+                {{ cs.avg_course_grade|floatformat:2 }} / 20
+                {% else %}
+                <span class="muted" style="font-weight:400;">Pas de note</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" style="padding:20px;text-align:center;" class="muted">Aucun cours enregistré.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </article>
+
+      <!-- Filières / Departments Distribution & Chart 3 -->
+      <article class="panel">
+        <div class="panel-header">
+          <h2>🏫 Effectifs par Filière / Département</h2>
+        </div>
+        <div style="position:relative;height:240px;margin-bottom:20px;">
+          <canvas id="filieresChart"></canvas>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- Chart.js Scripts Initialization -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // 1. Chart Donut: Mentions
+    const ctxGrades = document.getElementById('gradesChart').getContext('2d');
+    new Chart(ctxGrades, {
+      type: 'doughnut',
+      data: {
+        labels: ['Très Bien (≥16)', 'Bien (14-16)', 'Moyen (10-14)', 'Insuffisant (<10)'],
+        datasets: [{
+          data: [{{ grade_excellent }}, {{ grade_good }}, {{ grade_average }}, {{ grade_poor }}],
+          backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+          borderWidth: 2,
+          borderColor: '#ffffff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // 2. Chart Bar: Courses Averages
+    const ctxCourses = document.getElementById('coursesChart').getContext('2d');
+    const courseLabels = JSON.parse('{{ course_labels_json|safe }}');
+    const courseAverages = JSON.parse('{{ course_averages_json|safe }}');
+
+    new Chart(ctxCourses, {
+      type: 'bar',
+      data: {
+        labels: courseLabels,
+        datasets: [{
+          label: 'Moyenne (/20)',
+          data: courseAverages,
+          backgroundColor: 'rgba(79, 70, 229, 0.85)',
+          borderRadius: 8,
+          hoverBackgroundColor: '#4f46e5'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, max: 20 }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    // 3. Chart Horizontal Bar: Filieres
+    const ctxFilieres = document.getElementById('filieresChart').getContext('2d');
+    const filiereLabels = JSON.parse('{{ filiere_labels_json|safe }}');
+    const filiereCounts = JSON.parse('{{ filiere_counts_json|safe }}');
+
+    new Chart(ctxFilieres, {
+      type: 'bar',
+      data: {
+        labels: filiereLabels,
+        datasets: [{
+          label: "Nombre d'étudiants",
+          data: filiereCounts,
+          backgroundColor: 'rgba(59, 130, 246, 0.85)',
+          borderRadius: 8
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { beginAtZero: true, precision: 0 }
+        },
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

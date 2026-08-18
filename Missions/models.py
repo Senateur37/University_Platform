@@ -7,6 +7,8 @@ class Assignment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="assignments")
     title = models.CharField(max_length=200)
     description = models.TextField()
+    max_points = models.DecimalField(max_digits=5, decimal_places=2, default=20.00, verbose_name="Note maximale")
+    attachment = models.FileField(upload_to="assignments/attachments/", null=True, blank=True, verbose_name="Sujet / Pièce jointe")
     due_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 

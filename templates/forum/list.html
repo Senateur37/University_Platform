@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Forum de discussion - Campus Codex{% endblock %}
+
+{% block content %}
+<section class="listing-shell">
+  <div class="listing-header" style="display:flex;justify-content:space-between;align-items:flex-end;">
+    <div>
+      <div class="eyebrow">Entraide & Échanges</div>
+      <h1>Forum de discussion</h1>
+    </div>
+    {% if user.is_authenticated %}
+    <a class="button primary" href="{% url 'topic_create' %}">💬 + Lancer une discussion</a>
+    {% endif %}
+  </div>
+
+  <form method="get" class="search-bar" style="margin-bottom:20px;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Rechercher une discussion, un sujet, une question...">
+    {% if selected_category %}<input type="hidden" name="cat" value="{{ selected_category }}">{% endif %}
+    <button type="submit" class="button secondary">Rechercher</button>
+  </form>
+
+  <div class="filter-pills" style="margin-bottom:24px;">
+    <a class="pill {% if not selected_category %}active{% endif %}" href="{% url 'topic_list' %}{% if query %}?q={{ query }}{% endif %}">Tout voir</a>
+    {% for cat in categories %}
+    <a class="pill {% if selected_category == cat.slug %}active{% endif %}" href="{% url 'topic_list' %}?cat={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}">
+      {{ cat.icon }} {{ cat.name }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="panel-list">
+    {% for topic in topics %}
+    <article class="course-item" style="padding:18px 22px;{% if topic.is_pinned %}border-left:4px solid var(--accent);background:rgba(79,70,229,0.03);{% endif %}">
+      <div style="display:flex;gap:16px;align-items:flex-start;flex:1;">
+        {% if topic.author.avatar %}
+        <img src="{{ topic.author.avatar.url }}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}">
+        {% else %}
+        <div style="width:42px;height:42px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;">
+          {{ topic.author.username|first|upper }}
+        </div>
+        {% endif %}
+
+        <div style="flex:1;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
+            {% if topic.is_pinned %}<span class="pill warning" style="font-size:0.75rem;">📌 Épinglé</span>{% endif %}
+            {% if topic.is_closed %}<span class="pill danger" style="font-size:0.75rem;">🔒 Verrouillé</span>{% endif %}
+            {% if topic.category %}
+            <span class="pill secondary" style="font-size:0.75rem;">{{ topic.category.icon }} {{ topic.category.name }}</span>
+            {% endif %}
+            {% if topic.course %}
+            <span class="pill secondary" style="font-size:0.75rem;background:rgba(59,130,246,0.1);color:#2563eb;">📚 {{ topic.course.code }}</span>
+            {% endif %}
+          </div>
+
+          <h3 style="margin:4px 0 6px;font-size:1.1rem;">
+            <a href="{% url 'topic_detail' topic.pk %}" style="text-decoration:none;color:var(--ink);">{{ topic.title }}</a>
+          </h3>
+
+          <p style="color:var(--muted);font-size:0.88rem;margin:0 0 8px;line-height:1.5;">
+            {{ topic.content|truncatewords:28 }}
+          </p>
+
+          <div class="course-meta" style="display:flex;gap:14px;align-items:center;font-size:0.8rem;color:var(--muted);">
+            <span>Par <strong>{{ topic.author.get_full_name|default:topic.author.username }}</strong> ({{ topic.author.get_user_type_display }})</span>
+            <span>· {{ topic.created_at|date:"d/m/Y à H:i" }}</span>
+            <span>· 💬 {{ topic.posts.all|length }} réponse(s)</span>
+            <span>· 👁️ {{ topic.views_count }} vue(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-left:12px;">
+        <a href="{% url 'topic_detail' topic.pk %}" class="button secondary" style="padding:6px 14px;font-size:0.82rem;">Voir</a>
+      </div>
+    </article>
+    {% empty %}
+    <article class="feature-card empty-state" style="text-align:center;padding:40px;">
+      <span style="font-size:2.5rem;display:block;margin-bottom:12px;">💬</span>
+      <h3 style="margin-bottom:6px;">Aucune discussion pour le moment</h3>
+      <p class="muted">Soyez le premier à poser une question ou à lancer un débat sur le forum !</p>
+      {% if user.is_authenticated %}
+      <a href="{% url 'topic_create' %}" class="button primary" style="margin-top:14px;">💬 + Lancer une discussion</a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
