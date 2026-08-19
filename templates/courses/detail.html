@@ -57,7 +57,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
               {% if resource.file %}
-              <a href="{{ resource.file.url }}" class="button primary" style="padding:6px 14px;font-size:0.82rem;" target="_blank">📥 Télécharger</a>
+              <a href="{% url 'resource_download' course.pk resource.pk %}" class="button primary" style="padding:6px 14px;font-size:0.82rem;">📥 Télécharger</a>
               {% endif %}
               {% if user.is_teacher_or_admin %}
               <a href="{% url 'resource_delete' course.pk resource.pk %}" class="button ghost" style="padding:6px 10px;font-size:0.8rem;color:var(--danger);" onclick="return confirm('Supprimer cette ressource ?')">Supprimer</a>

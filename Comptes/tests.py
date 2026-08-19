@@ -189,3 +189,19 @@ class ComprehensivePlatformTests(TestCase):
         self.assertTrue(response_csv['Content-Type'].startswith('text/csv'))
         self.assertIn('Rapport Global', response_csv.content.decode('utf-8-sig'))
 
+    def test_resource_download_view(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from Cours.models import CourseResource
+
+        file = SimpleUploadedFile("test_document.txt", b"Contenu du cours de test", content_type="text/plain")
+        resource = CourseResource.objects.create(
+            course=self.course,
+            title="Support de cours",
+            file=file
+        )
+
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('resource_download', args=[self.course.pk, resource.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('attachment', response['Content-Disposition'])
+

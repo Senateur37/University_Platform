@@ -36,7 +36,8 @@
               {% csrf_token %}
               <input type="hidden" name="user_id" value="{{ u.pk }}">
               <input type="hidden" name="action" value="change_role">
-              <select name="new_role" onchange="this.form.submit()" style="padding:5px 10px;border-radius:10px;border:1px solid var(--line);font-size:0.82rem;font-weight:600;background:white;">
+              <select name="new_role" onchange="this.form.submit()"
+                style="padding:5px 10px;border-radius:10px;border:1px solid var(--line);font-size:0.82rem;font-weight:600;background:white;">
                 <option value="student" {% if u.user_type == 'student' %}selected{% endif %}>🎓 Étudiant</option>
                 <option value="teacher" {% if u.user_type == 'teacher' %}selected{% endif %}>👨‍🏫 Enseignant</option>
                 <option value="admin" {% if u.user_type == 'admin' %}selected{% endif %}>⚙️ Admin</option>
@@ -52,8 +53,9 @@
           </td>
           <td style="padding:12px 14px;text-align:right;">
             <div style="display:inline-flex;gap:6px;align-items:center;justify-content:flex-end;">
-              <a href="{% url 'user_edit' u.pk %}" class="button secondary" style="padding:6px 10px;font-size:0.8rem;" title="Modifier le profil">✏️ Modifier</a>
-              
+              <a href="{% url 'user_edit' u.pk %}" class="button secondary" style="padding:6px 10px;font-size:0.8rem;"
+                title="Modifier le profil">✏️ Modifier</a>
+
               <form method="post" style="display:inline;">
                 {% csrf_token %}
                 <input type="hidden" name="user_id" value="{{ u.pk }}">
@@ -64,11 +66,14 @@
               </form>
 
               {% if u != user %}
-              <form method="post" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement l\'utilisateur {{ u.username }} ?');">
+              <form method="post" style="display:inline;"
+                onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement l\'utilisateur {{ u.username }} ?');">
                 {% csrf_token %}
                 <input type="hidden" name="user_id" value="{{ u.pk }}">
                 <input type="hidden" name="action" value="delete_user">
-                <button type="submit" class="button ghost" style="padding:6px 10px;font-size:0.8rem;color:var(--danger);" title="Supprimer définitivement">🗑️ Supprimer</button>
+                <button type="submit" class="button ghost"
+                  style="padding:6px 10px;font-size:0.8rem;color:var(--danger);" title="Supprimer définitivement">🗑️
+                  Supprimer</button>
               </form>
               {% endif %}
             </div>

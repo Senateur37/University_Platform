@@ -1,6 +1,8 @@
+import os
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import FileResponse
 from django.db.models import Q
 from django import forms
 
@@ -208,4 +210,21 @@ def resource_delete(request, pk, resource_pk):
     resource.delete()
     messages.success(request, 'Ressource supprimée.')
     return redirect('course_detail', course.pk)
+
+
+@login_required
+def resource_download(request, pk, resource_pk):
+    course = get_object_or_404(Course, pk=pk)
+    resource = get_object_or_404(CourseResource, pk=resource_pk, course=course)
+
+    if not resource.file:
+        messages.error(request, "Aucun fichier disponible pour ce document.")
+        return redirect('course_detail', pk=pk)
+
+    try:
+        filename = os.path.basename(resource.file.name)
+        return FileResponse(resource.file.open('rb'), as_attachment=True, filename=filename)
+    except (FileNotFoundError, ValueError):
+        messages.error(request, "Le fichier est introuvable sur le serveur.")
+        return redirect('course_detail', pk=pk)
 
