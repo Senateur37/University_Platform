@@ -497,16 +497,81 @@
       border-radius: 12px;
       margin-bottom: 8px;
       font-weight: 600;
+    /* Responsive Mobile Navigation Drawer & Table Utilities */
+    .mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: var(--sidebar);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .hamburger-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1040;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
     }
 
     @media (max-width: 980px) {
+      .mobile-header {
+        display: flex;
+      }
+
       .app-shell {
         grid-template-columns: 1fr;
       }
 
       .sidebar {
-        position: static;
-        height: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 285px;
+        height: 100vh;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.35);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
       }
 
       .dashboard-layout {
@@ -521,24 +586,24 @@
 
     @media (max-width: 640px) {
       .topbar {
-        justify-content: space-between;
+        padding: 10px 14px;
       }
 
       .topbar-actions {
         width: 100%;
-        justify-content: space-between;
+        gap: 8px;
       }
 
-      .search-pill {
-        flex: 1;
+      .container {
+        padding: 16px 14px 40px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
 
       .status-pill {
         display: none;
-      }
-
-      .container {
-        padding-top: 20px;
       }
     }
   </style>
@@ -546,6 +611,20 @@
 
 <body>
   {% if user.is_authenticated %}
+  <!-- Mobile Header Bar for Mobile/Tablet -->
+  <div class="mobile-header">
+    <a class="brand" href="{% url 'dashboard' %}" style="padding:0;">
+      <span class="brand-mark">U</span>
+      <span>EUTG</span>
+    </a>
+    <button type="button" class="hamburger-btn" onclick="toggleMobileSidebar()">
+      <span>☰</span> Menu
+    </button>
+  </div>
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">U</span><span>Universite EUTG</span></a>
@@ -696,6 +775,22 @@
   </div>
   {% endif %}
   <script>
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar && overlay) {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+      }
+    }
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar && overlay) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+      }
+    }
     function toggleNotifDropdown() {
       const dropdown = document.getElementById('notifDropdown');
       if (dropdown) {
