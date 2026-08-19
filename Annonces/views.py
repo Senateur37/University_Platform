@@ -45,6 +45,31 @@ def announcement_create(request):
         announcement = form.save(commit=False)
         announcement.author = request.user
         announcement.save()
+
+        # Create notifications for students
+        from Comptes.models import Notification
+        from django.urls import reverse
+        link = reverse('announcement_detail', args=[announcement.pk])
+        if announcement.course:
+            recipients = announcement.course.students.exclude(pk=request.user.pk)
+            code_text = f" ({announcement.course.code})"
+        else:
+            recipients = User.objects.filter(user_type='student').exclude(pk=request.user.pk)
+            code_text = " (Campus)"
+
+        notifs = [
+            Notification(
+                recipient=u,
+                notification_type='announcement',
+                title=f"📢 Nouvelle annonce{code_text} : {announcement.title}",
+                message=announcement.content[:100],
+                link=link
+            )
+            for u in recipients
+        ]
+        if notifs:
+            Notification.objects.bulk_create(notifs)
+
         messages.success(request, 'Annonce publiée avec succès.')
         return redirect('announcement_list')
     return render(request, 'form.html', {'form': form, 'title': 'Publier une annonce', 'submit_label': 'Publier'})

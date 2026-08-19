@@ -93,6 +93,26 @@ def assignment_create(request):
         
     if form.is_valid():
         assignment = form.save()
+
+        # Notify enrolled students
+        from Comptes.models import Notification
+        from django.urls import reverse
+        link = reverse('assignment_detail', args=[assignment.pk])
+        recipients = assignment.course.students.exclude(pk=request.user.pk)
+        due_str = assignment.due_date.strftime('%d/%m/%Y') if assignment.due_date else ''
+        notifs = [
+            Notification(
+                recipient=u,
+                notification_type='assignment',
+                title=f"🎯 Nouvelle mission ({assignment.course.code}) : {assignment.title}",
+                message=f"À rendre avant le {due_str}",
+                link=link
+            )
+            for u in recipients
+        ]
+        if notifs:
+            Notification.objects.bulk_create(notifs)
+
         messages.success(request, 'La mission a été créée avec succès.')
         return redirect('assignment_detail', assignment.pk)
     return render(request, 'form.html', {'form': form, 'title': 'Créer une nouvelle mission', 'submit_label': 'Créer la mission'})
@@ -183,6 +203,19 @@ def grade_submission(request, pk, submission_pk):
     form = GradeForm(request.POST or None, instance=submission)
     if form.is_valid():
         form.save()
+
+        # Notify student of their grade
+        from Comptes.models import Notification
+        from django.urls import reverse
+        link = reverse('assignment_detail', args=[assignment.pk])
+        Notification.objects.create(
+            recipient=submission.student,
+            notification_type='grade',
+            title=f"⭐ Note attribuée : {assignment.title}",
+            message=f"Vous avez obtenu {submission.grade}/{assignment.max_points}.",
+            link=link
+        )
+
         messages.success(request, f'Note attribuée à {submission.student.get_full_name() or submission.student.username}.')
         return redirect('assignment_submissions', assignment.pk)
 

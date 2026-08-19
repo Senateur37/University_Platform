@@ -97,7 +97,7 @@ if USE_POSTGRES:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('UNIVERSITY_DB_NAME') or os.environ.get('POSTGRES_DB') or 'university_platform_db',
+            'NAME': os.environ.get('UNIVERSITY_DB_NAME') or os.environ.get('POSTGRES_DB') or 'university_db',
             'USER': os.environ.get('POSTGRES_USER') or os.environ.get('DB_USER') or 'postgres',
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD') or os.environ.get('DB_PASSWORD') or 'postgres',
             'HOST': os.environ.get('POSTGRES_HOST') or os.environ.get('DB_HOST') or 'localhost',

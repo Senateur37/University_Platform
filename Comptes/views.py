@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q, Avg, Count
 from django import forms
 
-from .models import User
+from .models import User, Notification
 from .decorateurs import user_type_required
 
 
@@ -410,5 +410,22 @@ def reports_view(request):
         'filiere_labels_json': json.dumps(filiere_labels),
         'filiere_counts_json': json.dumps(filiere_counts),
     })
+
+
+@login_required
+def notification_read_view(request, pk):
+    notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notif.is_read = True
+    notif.save()
+    if notif.link:
+        return redirect(notif.link)
+    return redirect('dashboard')
+
+
+@login_required
+def notifications_mark_all_read_view(request):
+    Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    messages.success(request, 'Toutes vos notifications ont été marquées comme lues.')
+    return redirect(request.META.get('HTTP_REFERER') or 'dashboard')
 
 

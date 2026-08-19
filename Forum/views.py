@@ -146,6 +146,19 @@ def post_create(request, pk):
         post.topic = topic
         post.author = request.user
         post.save()
+
+        # Notify topic author if not self
+        if topic.author != request.user:
+            from Comptes.models import Notification
+            from django.urls import reverse
+            Notification.objects.create(
+                recipient=topic.author,
+                notification_type='forum',
+                title=f"💬 Nouvelle réponse : {topic.title}",
+                message=f"{request.user.get_full_name() or request.user.username} a répondu à votre sujet.",
+                link=reverse('topic_detail', args=[topic.pk])
+            )
+
         messages.success(request, "Votre réponse a été publiée.")
     return redirect('topic_detail', topic.pk)
 

@@ -556,11 +556,20 @@
         <a class="side-link {% if 'course' in request.resolver_match.url_name and request.resolver_match.url_name != 'course_create' %}active{% endif %}"
           href="{% url 'course_list' %}"><span class="side-icon">📚</span>Cours & Documents</a>
         <a class="side-link {% if 'assignment' in request.resolver_match.url_name and request.resolver_match.url_name != 'assignment_create' %}active{% endif %}"
-          href="{% url 'assignment_list' %}"><span class="side-icon">🎯</span>Missions & Devoirs</a>
+          href="{% url 'assignment_list' %}" style="display:flex;justify-content:space-between;align-items:center;">
+          <span><span class="side-icon">🎯</span>Missions & Devoirs</span>
+          {% if unread_assignments_count %}<span class="pill danger" style="padding:2px 7px;font-size:0.7rem;font-weight:800;background:#ef4444;color:white;">{{ unread_assignments_count }}</span>{% endif %}
+        </a>
         <a class="side-link {% if 'announcement' in request.resolver_match.url_name and request.resolver_match.url_name != 'announcement_create' %}active{% endif %}"
-          href="{% url 'announcement_list' %}"><span class="side-icon">📢</span>Fil des Annonces</a>
+          href="{% url 'announcement_list' %}" style="display:flex;justify-content:space-between;align-items:center;">
+          <span><span class="side-icon">📢</span>Fil des Annonces</span>
+          {% if unread_announcements_count %}<span class="pill danger" style="padding:2px 7px;font-size:0.7rem;font-weight:800;background:#ef4444;color:white;">{{ unread_announcements_count }}</span>{% endif %}
+        </a>
         <a class="side-link {% if 'topic' in request.resolver_match.url_name %}active{% endif %}"
-          href="{% url 'topic_list' %}"><span class="side-icon">💬</span>Forum de discussion</a>
+          href="{% url 'topic_list' %}" style="display:flex;justify-content:space-between;align-items:center;">
+          <span><span class="side-icon">💬</span>Forum de discussion</span>
+          {% if unread_forum_count %}<span class="pill danger" style="padding:2px 7px;font-size:0.7rem;font-weight:800;background:#ef4444;color:white;">{{ unread_forum_count }}</span>{% endif %}
+        </a>
 
         {% if user.is_teacher_or_admin %}
         <div class="side-label" style="margin-top:14px;">Gestion Pédagogique</div>
@@ -618,6 +627,38 @@
               style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,0.85);font-size:0.88rem;outline:none;">
           </form>
           <div style="display:flex;align-items:center;gap:12px;">
+            <!-- Notification Bell Dropdown -->
+            <div style="position:relative;" id="notifDropdownContainer">
+              <button type="button" onclick="toggleNotifDropdown()" style="background:white;border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:0.9rem;position:relative;">
+                <span>🔔</span>
+                {% if notifications_unread_count > 0 %}
+                <span style="background:#ef4444;color:white;font-size:0.72rem;font-weight:800;border-radius:999px;padding:2px 7px;">{{ notifications_unread_count }}</span>
+                {% endif %}
+              </button>
+
+              <div id="notifDropdown" style="display:none;position:absolute;right:0;top:42px;width:340px;background:white;border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,0.12);z-index:999;overflow:hidden;">
+                <div style="padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+                  <strong style="font-size:0.88rem;color:var(--ink);">Notifications</strong>
+                  {% if notifications_unread_count > 0 %}
+                  <a href="{% url 'notifications_mark_all_read' %}" style="font-size:0.76rem;color:var(--primary);font-weight:600;text-decoration:none;">Tout marquer comme lu</a>
+                  {% endif %}
+                </div>
+                <div style="max-height:320px;overflow-y:auto;">
+                  {% for notif in recent_notifications %}
+                  <a href="{% url 'notification_read' notif.pk %}" style="display:block;padding:12px 16px;border-bottom:1px solid #f1f5f9;text-decoration:none;color:inherit;background:{% if not notif.is_read %}rgba(79,70,229,0.04){% else %}white{% endif %};">
+                    <div style="font-size:0.84rem;font-weight:{% if not notif.is_read %}700{% else %}600{% endif %};margin-bottom:2px;color:var(--ink);">{{ notif.title }}</div>
+                    {% if notif.message %}
+                    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">{{ notif.message }}</div>
+                    {% endif %}
+                    <div style="font-size:0.72rem;color:#94a3b8;">{{ notif.created_at|date:'d/m H:i' }}</div>
+                  </a>
+                  {% empty %}
+                  <div style="padding:20px;text-align:center;font-size:0.85rem;" class="muted">Aucune notification pour le moment.</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
             <a href="{% url 'profile' %}" class="status-pill" style="text-decoration:none;">{{ user.username }}</a>
           </div>
         </div>
@@ -646,6 +687,21 @@
     </section>
   </div>
   {% endif %}
+  <script>
+    function toggleNotifDropdown() {
+      const dropdown = document.getElementById('notifDropdown');
+      if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+    document.addEventListener('click', function(e) {
+      const container = document.getElementById('notifDropdownContainer');
+      if (container && !container.contains(e.target)) {
+        const dropdown = document.getElementById('notifDropdown');
+        if (dropdown) dropdown.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 
 </html>

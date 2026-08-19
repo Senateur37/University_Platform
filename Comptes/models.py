@@ -23,4 +23,27 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if (self.is_superuser or self.is_staff) and not self.user_type:
             self.user_type = 'admin'
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('announcement', 'Annonce'),
+        ('assignment', 'Mission'),
+        ('forum', 'Forum'),
+        ('grade', 'Note'),
+    ]
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='announcement')
+    title = models.CharField(max_length=255)
+    message = models.TextField(blank=True)
+    link = models.CharField(max_length=255, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.notification_type}] {self.title} -> {self.recipient.username}"

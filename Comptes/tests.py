@@ -205,3 +205,35 @@ class ComprehensivePlatformTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('attachment', response['Content-Disposition'])
 
+    def test_notifications_system(self):
+        from Comptes.models import Notification
+
+        # Enroll student in course
+        self.course.students.add(self.student)
+
+        # Create an announcement to trigger notification
+        self.client.force_login(self.teacher)
+        self.client.post(reverse('announcement_create'), {
+            'title': 'Annonce test notification',
+            'content': 'Contenu important',
+            'course': self.course.pk
+        })
+
+        # Verify student receives notification
+        notif = Notification.objects.filter(recipient=self.student).first()
+        self.assertIsNotNone(notif)
+        self.assertEqual(notif.notification_type, 'announcement')
+        self.assertFalse(notif.is_read)
+
+        # Mark notification as read
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('notification_read', args=[notif.pk]))
+        notif.refresh_from_db()
+        self.assertTrue(notif.is_read)
+
+        # Mark all read
+        Notification.objects.create(recipient=self.student, title="Autre notif", notification_type="forum", is_read=False)
+        self.client.get(reverse('notifications_mark_all_read'))
+        unread_count = Notification.objects.filter(recipient=self.student, is_read=False).count()
+        self.assertEqual(unread_count, 0)
+
