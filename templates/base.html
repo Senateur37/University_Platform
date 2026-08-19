@@ -497,12 +497,55 @@
       border-radius: 12px;
       margin-bottom: 8px;
       font-weight: 600;
-    /* Responsive Mobile Navigation Drawer & Table Utilities */
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 25%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+      color: var(--ink);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    /* DEFAULT: Mobile-First Layout System (Phones & Tablets) */
+    .app-shell {
+      min-height: 100vh;
+      display: block;
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
     .mobile-header {
-      display: none;
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 18px;
+      padding: 10px 14px;
       background: var(--sidebar);
       color: white;
       position: sticky;
@@ -510,6 +553,8 @@
       z-index: 1000;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .hamburger-btn {
@@ -518,7 +563,7 @@
       color: white;
       border-radius: 12px;
       padding: 8px 14px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -526,20 +571,41 @@
       font-weight: 700;
     }
 
+    .sidebar {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      bottom: 0 !important;
+      width: min(285px, 85vw) !important;
+      height: 100vh !important;
+      background: linear-gradient(180deg, var(--sidebar) 0%, #111827 100%) !important;
+      color: #e2e8f0 !important;
+      padding: 24px 18px 18px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      z-index: 2000 !important;
+      transform: translateX(-100%) !important;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5) !important;
+      overflow-y: auto !important;
+    }
+
+    .sidebar.open {
+      transform: translateX(0) !important;
+    }
+
     .sidebar-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      background: rgba(15, 23, 42, 0.75) !important;
+      backdrop-filter: blur(4px) !important;
+      z-index: 1990 !important;
       display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(4px);
-      z-index: 1040;
-      opacity: 0;
-      transition: opacity 0.3s ease;
     }
 
     .sidebar-overlay.active {
-      display: block;
-      opacity: 1;
+      display: block !important;
+      opacity: 1 !important;
     }
 
     .table-responsive {
@@ -553,155 +619,176 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 12px 24px;
+      padding: 10px 14px;
       width: 100%;
       box-sizing: border-box;
     }
 
-    .public-topbar .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      flex-shrink: 0;
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      width: 100%;
     }
 
-    .topbar-actions {
+    .dashboard-hero {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-      white-space: nowrap;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      padding: 20px 16px;
+      border-radius: 20px;
     }
 
-    @media (max-width: 1200px), screen and (max-device-width: 1200px) {
-      .app-shell, .app-shell.mobile-shell {
-        display: block !important;
-        grid-template-columns: 1fr !important;
-        width: 100% !important;
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      gap: 8px;
+    }
+
+    .hero-actions .button {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .container {
+      padding: 12px 10px 36px;
+      width: 100%;
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    .listing-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .listing-header .button,
+    .listing-header a.button {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .feature-card,
+    .panel {
+      padding: 16px 14px;
+      border-radius: 18px;
+    }
+
+    .status-pill {
+      display: none;
+    }
+
+    .mobile-close-btn {
+      display: flex !important;
+    }
+
+    /* DESKTOP ONLY: Large screens (> 1024px) switch to 2-column sidebar layout */
+    @media (min-width: 1025px) {
+      .mobile-header {
+        display: none !important;
       }
 
-      .mobile-header {
-        display: flex !important;
+      .app-shell {
+        display: grid !important;
+        grid-template-columns: 260px minmax(0, 1fr) !important;
+        max-width: 100% !important;
       }
 
       .sidebar {
-        position: fixed !important;
+        position: sticky !important;
         top: 0 !important;
-        left: 0 !important;
-        bottom: 0 !important;
-        width: min(285px, 85vw) !important;
         height: 100vh !important;
-        z-index: 2000 !important;
-        transform: translateX(-100%) !important;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4) !important;
-      }
-
-      .sidebar.open {
-        transform: translateX(0) !important;
+        width: 260px !important;
+        transform: none !important;
+        box-shadow: none !important;
+        z-index: 10 !important;
+        border-right: 1px solid rgba(148, 163, 184, 0.12) !important;
       }
 
       .mobile-close-btn {
-        display: flex !important;
+        display: none !important;
       }
 
       .sidebar-overlay {
-        position: fixed !important;
-        inset: 0 !important;
-        background: rgba(15, 23, 42, 0.7) !important;
-        backdrop-filter: blur(4px) !important;
-        z-index: 1990 !important;
-        display: none;
-      }
-
-      .sidebar-overlay.active {
-        display: block !important;
-        opacity: 1 !important;
+        display: none !important;
       }
 
       .dashboard-layout {
-        grid-template-columns: 1fr !important;
-        gap: 20px !important;
+        grid-template-columns: 1fr 340px !important;
+        gap: 26px !important;
       }
 
       .dashboard-hero {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 16px !important;
-        padding: 20px 16px !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 32px !important;
       }
 
       .hero-actions {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        gap: 8px !important;
+        flex-direction: row !important;
+        width: auto !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
       }
 
       .hero-actions .button {
-        width: 100% !important;
-        justify-content: center !important;
-        text-align: center !important;
-        box-sizing: border-box !important;
+        width: auto !important;
       }
 
       .stats-grid {
-        grid-template-columns: 1fr !important;
-        gap: 12px !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 20px !important;
       }
 
       .grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+        gap: 18px !important;
       }
 
       .container {
-        padding: 12px 10px 36px !important;
-        max-width: 100vw !important;
-        box-sizing: border-box !important;
-        overflow-x: hidden !important;
+        padding: 24px 28px 60px !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
       }
 
       .listing-header {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-        margin-bottom: 16px !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: flex-end !important;
       }
 
       .listing-header .button,
       .listing-header a.button {
-        width: 100% !important;
-        justify-content: center !important;
-        text-align: center !important;
-        box-sizing: border-box !important;
-      }
-
-      .feature-card,
-      .panel {
-        padding: 16px 14px !important;
-        border-radius: 18px !important;
-      }
-
-      .public-topbar {
-        padding: 8px 12px;
-        gap: 6px;
-      }
-
-      .topbar-actions {
-        gap: 6px;
-      }
-
-      .topbar-actions .button {
-        padding: 6px 10px !important;
-        font-size: 0.78rem !important;
-        border-radius: 10px !important;
-        white-space: nowrap !important;
+        width: auto !important;
       }
 
       .status-pill {
-        display: none !important;
+        display: inline-flex !important;
       }
     }
   </style>
