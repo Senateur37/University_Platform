@@ -479,7 +479,33 @@
       display: none;
     }
     .auth-form-side {
-      padding: 32px 24px;
+      padding: 28px 20px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .premium-auth-container {
+      padding: 8px 0;
+      width: 100%;
+    }
+    .premium-auth-card {
+      border-radius: 20px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      margin: 0;
+    }
+    .auth-form-side {
+      padding: 20px 14px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .input-wrapper input,
+    .simple-input {
+      font-size: 0.88rem;
+      padding-top: 10px;
+      padding-bottom: 10px;
+      box-sizing: border-box;
+      max-width: 100%;
     }
   }
 </style>
