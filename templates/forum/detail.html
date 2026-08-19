@@ -76,21 +76,21 @@
 
     <div class="panel-list">
       {% for post in posts %}
-      <div class="course-item" style="padding:16px 20px;align-items:flex-start;">
+      <div class="course-item" style="padding:14px 16px;align-items:flex-start;flex-wrap:wrap;gap:10px;">
         {% if post.author.avatar %}
-        <img src="{{ post.author.avatar.url }}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;" alt="{{ post.author.username }}">
+        <img src="{{ post.author.avatar.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="{{ post.author.username }}">
         {% else %}
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--sidebar);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--sidebar);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">
           {{ post.author.username|first|upper }}
         </div>
         {% endif %}
 
-        <div style="flex:1;margin-left:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <div>
-              <strong style="font-size:0.92rem;">{{ post.author.get_full_name|default:post.author.username }}</strong>
-              <span class="pill secondary" style="font-size:0.72rem;margin-left:6px;">{{ post.author.get_user_type_display }}</span>
-              <span class="muted" style="font-size:0.78rem;margin-left:8px;">{{ post.created_at|date:"d/m/Y à H:i" }}</span>
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <strong style="font-size:0.9rem;">{{ post.author.get_full_name|default:post.author.username }}</strong>
+              <span class="pill secondary" style="font-size:0.72rem;">{{ post.author.get_user_type_display }}</span>
+              <span class="muted" style="font-size:0.76rem;">{{ post.created_at|date:"d/m/Y à H:i" }}</span>
             </div>
 
             {% if user == post.author or user.is_teacher_or_admin %}
@@ -101,7 +101,7 @@
             {% endif %}
           </div>
 
-          <p style="line-height:1.6;white-space:pre-line;margin:0;font-size:0.95rem;color:var(--ink);">{{ post.content }}</p>
+          <p style="line-height:1.6;white-space:pre-line;margin:0;font-size:0.92rem;color:var(--ink);">{{ post.content }}</p>
         </div>
       </div>
       {% empty %}
