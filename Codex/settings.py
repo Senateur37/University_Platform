@@ -12,13 +12,18 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file if present
-load_dotenv(BASE_DIR / '.env')
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
 
 
 # Quick-start development settings - unsuitable for production
@@ -92,7 +97,7 @@ if USE_POSTGRES:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('UNIVERSITY_DB_NAME') or os.environ.get('POSTGRES_DB') or 'university_db',
+            'NAME': os.environ.get('UNIVERSITY_DB_NAME') or os.environ.get('POSTGRES_DB') or 'university_platform_db',
             'USER': os.environ.get('POSTGRES_USER') or os.environ.get('DB_USER') or 'postgres',
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD') or os.environ.get('DB_PASSWORD') or 'postgres',
             'HOST': os.environ.get('POSTGRES_HOST') or os.environ.get('DB_HOST') or 'localhost',

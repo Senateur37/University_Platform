@@ -1,4 +1,9 @@
-asgiref==3.12.1
-Django==6.1
-sqlparse==0.6.0
-tzdata==2026.3
+Django>=6.0,<7.0
+dj-database-url
+python-dotenv
+psycopg2-binary
+whitenoise
+gunicorn
+asgiref
+sqlparse
+tzdata
