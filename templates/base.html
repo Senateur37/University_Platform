@@ -532,7 +532,7 @@
       font: inherit;
     }
 
-    /* 1. DEFAULT DESKTOP LAYOUT (PC & Large Screens > 1024px) */
+    /* 1. DEFAULT DESKTOP LAYOUT (PC & Large Screens > 768px) */
     .app-shell {
       min-height: 100vh;
       display: grid;
@@ -546,12 +546,20 @@
       height: 100vh;
       background: linear-gradient(180deg, var(--sidebar) 0%, #111827 100%);
       color: #e2e8f0;
-      padding: 24px 18px 18px;
+      padding: 20px 16px 16px;
       display: flex;
       flex-direction: column;
       border-right: 1px solid rgba(148, 163, 184, 0.12);
       overflow-y: auto;
       z-index: 100;
+    }
+
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .mobile-header {
@@ -590,8 +598,8 @@
       white-space: nowrap;
     }
 
-    /* 2. MOBILE & TABLET RESPONSIVE LAYOUT (Screens <= 1024px) */
-    @media (max-width: 1024px) {
+    /* 2. MOBILE & TABLET RESPONSIVE LAYOUT (Screens <= 768px) */
+    @media (max-width: 768px) {
       .app-shell {
         display: block !important;
         width: 100% !important;
