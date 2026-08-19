@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}University Platform EUTG{% endblock %}</title>
+  <title>{% block title %}Platform Universitaire EUTG{% endblock %}</title>
   <style>
     :root {
       --bg: #edf3fb;
@@ -548,7 +548,7 @@
   {% if user.is_authenticated %}
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">U</span><span>University EUTG</span></a>
+      <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">U</span><span>Universite EUTG</span></a>
       <div class="side-label">Espace de travail</div>
       <nav class="side-nav">
         <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
@@ -628,7 +628,7 @@
         {% else %}
         <nav class="topbar public-topbar">
           <a href="{% url 'home' %}" class="brand" style="padding:0;color:#0f172a;">
-            <span class="brand-mark">U</span><span>University EUTG</span>
+            <span class="brand-mark">U</span><span>Universite EUTG</span>
           </a>
           <div class="topbar-actions">
             <a href="{% url 'login' %}" class="button ghost">Connexion</a>
