@@ -548,8 +548,30 @@
       max-width: 100%;
     }
 
-    .brand-text-mobile {
-      display: none;
+    .public-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 24px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .public-topbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
 
     @media (max-width: 980px) {
@@ -587,49 +609,17 @@
         align-items: flex-start;
       }
 
-      /* Public Topbar Responsiveness for Mobile & Tablet */
       .public-topbar {
         padding: 8px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
         gap: 6px;
-        box-sizing: border-box;
-        width: 100%;
-        max-width: 100vw;
-      }
-
-      .public-topbar .brand-text-desktop {
-        display: none !important;
-      }
-
-      .public-topbar .brand-text-mobile {
-        display: inline !important;
-        font-weight: 800;
-      }
-
-      .public-topbar .brand {
-        font-size: 0.85rem;
-        gap: 6px;
-        flex-shrink: 0;
-      }
-
-      .public-topbar .brand-mark {
-        width: 32px;
-        height: 32px;
-        font-size: 0.95rem;
-        border-radius: 10px;
       }
 
       .topbar-actions {
-        display: flex;
-        align-items: center;
         gap: 6px;
-        flex-shrink: 0;
       }
 
       .topbar-actions .button {
-        padding: 6px 11px !important;
+        padding: 6px 10px !important;
         font-size: 0.78rem !important;
         border-radius: 10px !important;
         white-space: nowrap !important;
@@ -802,7 +792,7 @@
         {% else %}
         <nav class="topbar public-topbar">
           <a href="{% url 'home' %}" class="brand" style="padding:0;color:#0f172a;">
-            <span class="brand-mark">U</span><span class="brand-text-desktop">Universite EUTG</span><span class="brand-text-mobile">EUTG</span>
+            <span class="brand-mark">U</span><span>EUTG</span>
           </a>
           <div class="topbar-actions">
             <a href="{% url 'login' %}" class="button ghost">Connexion</a>
