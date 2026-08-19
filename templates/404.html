@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Page non trouvée (404) - Campus Codex{% endblock %}
+
+{% block content %}
+<section style="display:flex;justify-content:center;align-items:center;min-height:65vh;padding:40px 16px;text-align:center;">
+  <div style="max-width:540px;background:#ffffff;border:1px solid rgba(148,163,184,0.2);border-radius:28px;padding:40px 32px;box-shadow:0 20px 40px rgba(15,23,42,0.08);">
+    <span style="font-size:4rem;display:block;margin-bottom:12px;">🔍</span>
+    <span class="pill primary" style="font-size:0.8rem;font-weight:700;margin-bottom:10px;display:inline-block;">Erreur 404</span>
+    <h1 style="font-size:1.8rem;margin:8px 0 10px;">Page non trouvée</h1>
+    <p class="muted" style="line-height:1.6;font-size:0.95rem;margin-bottom:24px;">
+      Désolé, la page que vous recherchez n'existe pas ou a été déplacée.
+    </p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'dashboard' %}" class="button primary">Tableau de bord</a>
+      <a href="{% url 'home' %}" class="button secondary">Page d'accueil</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
