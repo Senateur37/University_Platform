@@ -238,6 +238,36 @@ def seed():
     )
 
     print("[OK] Forum initialisé avec des catégories et discussions de test.")
+
+    # 8. Notifications de test
+    from Comptes.models import Notification
+    from django.urls import reverse
+
+    for user in [admin, teacher1, teacher2, student1, student2]:
+        if not Notification.objects.filter(recipient=user).exists():
+            Notification.objects.create(
+                recipient=user,
+                notification_type='announcement',
+                title="📢 Bienvenue sur Codex EUTG !",
+                message="Bienvenue dans votre nouvel espace campus interactif.",
+                link=reverse('dashboard')
+            )
+            Notification.objects.create(
+                recipient=user,
+                notification_type='assignment',
+                title="🎯 Nouveau devoir TP1 Python",
+                message="Consultez les détails et la date limite dans l'onglet Missions.",
+                link=reverse('assignment_list')
+            )
+            Notification.objects.create(
+                recipient=user,
+                notification_type='forum',
+                title="💬 Discussion récursivité en Python",
+                message="Une réponse a été publiée sur le forum.",
+                link=reverse('topic_list')
+            )
+
+    print("[OK] Notifications de démonstration générées.")
     print("[DONE] Donnees de test pretes !")
 
 if __name__ == "__main__":
