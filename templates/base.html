@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="fr">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}University Platform{% endblock %}</title>
+  <title>{% block title %}University Platform EUTG{% endblock %}</title>
   <style>
     :root {
       --bg: #edf3fb;
@@ -24,8 +25,14 @@
       --radius: 22px;
     }
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: Inter, "Segoe UI", sans-serif;
@@ -35,8 +42,13 @@
       color: var(--ink);
     }
 
-    a { text-decoration: none; }
-    button { font: inherit; }
+    a {
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
 
     .app-shell {
       min-height: 100vh;
@@ -209,7 +221,10 @@
       padding: 32px 5% 48px;
     }
 
-    h1, h2, h3, p {
+    h1,
+    h2,
+    h3,
+    p {
       margin-top: 0;
     }
 
@@ -340,15 +355,15 @@
     }
 
     .stat-card.accent {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(255,255,255,0.9));
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(255, 255, 255, 0.9));
     }
 
     .stat-card.warning {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(255,255,255,0.9));
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(255, 255, 255, 0.9));
     }
 
     .stat-card.primary {
-      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(255,255,255,0.9));
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(255, 255, 255, 0.9));
     }
 
     .stat-number {
@@ -409,9 +424,20 @@
       white-space: nowrap;
     }
 
-    .pill.success { background: rgba(16, 185, 129, 0.08); color: #047857; }
-    .pill.warning { background: rgba(245, 158, 11, 0.12); color: #b45309; }
-    .pill.info { background: rgba(79, 70, 229, 0.08); color: #4338ca; }
+    .pill.success {
+      background: rgba(16, 185, 129, 0.08);
+      color: #047857;
+    }
+
+    .pill.warning {
+      background: rgba(245, 158, 11, 0.12);
+      color: #b45309;
+    }
+
+    .pill.info {
+      background: rgba(79, 70, 229, 0.08);
+      color: #4338ca;
+    }
 
     .dashboard-layout {
       display: grid;
@@ -450,7 +476,7 @@
       margin-top: auto;
     }
 
-    .progresso > span {
+    .progresso>span {
       display: block;
       height: 100%;
       border-radius: inherit;
@@ -517,89 +543,111 @@
     }
   </style>
 </head>
+
 <body>
-{% if user.is_authenticated %}
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar">
-    <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">U</span><span>University</span></a>
-    <div class="side-label">Espace de travail</div>
-    <nav class="side-nav">
-      <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}"><span class="side-icon">⌂</span>Vue d'ensemble</a>
-      <a class="side-link {% if 'course' in request.resolver_match.url_name and request.resolver_match.url_name != 'course_create' %}active{% endif %}" href="{% url 'course_list' %}"><span class="side-icon">📚</span>Cours & Documents</a>
-      <a class="side-link {% if 'assignment' in request.resolver_match.url_name and request.resolver_match.url_name != 'assignment_create' %}active{% endif %}" href="{% url 'assignment_list' %}"><span class="side-icon">🎯</span>Missions & Devoirs</a>
-      <a class="side-link {% if 'announcement' in request.resolver_match.url_name and request.resolver_match.url_name != 'announcement_create' %}active{% endif %}" href="{% url 'announcement_list' %}"><span class="side-icon">📢</span>Fil des Annonces</a>
-      <a class="side-link {% if 'topic' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'topic_list' %}"><span class="side-icon">💬</span>Forum de discussion</a>
+  {% if user.is_authenticated %}
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">U</span><span>University EUTG</span></a>
+      <div class="side-label">Espace de travail</div>
+      <nav class="side-nav">
+        <a class="side-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+          href="{% url 'dashboard' %}"><span class="side-icon">⌂</span>Vue d'ensemble</a>
+        <a class="side-link {% if 'course' in request.resolver_match.url_name and request.resolver_match.url_name != 'course_create' %}active{% endif %}"
+          href="{% url 'course_list' %}"><span class="side-icon">📚</span>Cours & Documents</a>
+        <a class="side-link {% if 'assignment' in request.resolver_match.url_name and request.resolver_match.url_name != 'assignment_create' %}active{% endif %}"
+          href="{% url 'assignment_list' %}"><span class="side-icon">🎯</span>Missions & Devoirs</a>
+        <a class="side-link {% if 'announcement' in request.resolver_match.url_name and request.resolver_match.url_name != 'announcement_create' %}active{% endif %}"
+          href="{% url 'announcement_list' %}"><span class="side-icon">📢</span>Fil des Annonces</a>
+        <a class="side-link {% if 'topic' in request.resolver_match.url_name %}active{% endif %}"
+          href="{% url 'topic_list' %}"><span class="side-icon">💬</span>Forum de discussion</a>
 
-      {% if user.is_teacher_or_admin %}
-      <div class="side-label" style="margin-top:14px;">Gestion Pédagogique</div>
-      <a class="side-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="{% url 'reports' %}"><span class="side-icon">📊</span>Rapports & Stats</a>
-      <a class="side-link {% if request.resolver_match.url_name == 'course_create' %}active{% endif %}" href="{% url 'course_create' %}"><span class="side-icon">➕</span>Créer un cours</a>
-      <a class="side-link {% if request.resolver_match.url_name == 'assignment_create' %}active{% endif %}" href="{% url 'assignment_create' %}"><span class="side-icon">📝</span>Créer une mission</a>
-      <a class="side-link {% if request.resolver_match.url_name == 'announcement_create' %}active{% endif %}" href="{% url 'announcement_create' %}"><span class="side-icon">📣</span>Publier une annonce</a>
-      {% endif %}
-
-      {% if user.is_staff or user.is_superuser or user.user_type == 'admin' %}
-      <div class="side-label" style="margin-top:14px;">Administration</div>
-      <a class="side-link {% if request.resolver_match.url_name == 'user_manage' %}active{% endif %}" href="{% url 'user_manage' %}"><span class="side-icon">👥</span>Gestion Utilisateurs</a>
-      <a class="side-link {% if request.resolver_match.url_name == 'user_create' %}active{% endif %}" href="{% url 'user_create' %}"><span class="side-icon">👤+</span>Ajouter un membre</a>
-      {% endif %}
-
-      <div class="side-label" style="margin-top:14px;">Mon Compte</div>
-      <a class="side-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}"><span class="side-icon">⚙️</span>Mon profil</a>
-    </nav>
-    <div class="side-bottom">
-      <div class="user-chip">
-        {% if user.avatar %}
-        <img src="{{ user.avatar.url }}" class="avatar" alt="Avatar" style="object-fit:cover;">
-        {% else %}
-        <span class="avatar">{{ user.username|first|upper }}</span>
+        {% if user.is_teacher_or_admin %}
+        <div class="side-label" style="margin-top:14px;">Gestion Pédagogique</div>
+        <a class="side-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}"
+          href="{% url 'reports' %}"><span class="side-icon">📊</span>Rapports & Stats</a>
+        <a class="side-link {% if request.resolver_match.url_name == 'course_create' %}active{% endif %}"
+          href="{% url 'course_create' %}"><span class="side-icon">➕</span>Créer un cours</a>
+        <a class="side-link {% if request.resolver_match.url_name == 'assignment_create' %}active{% endif %}"
+          href="{% url 'assignment_create' %}"><span class="side-icon">📝</span>Créer une mission</a>
+        <a class="side-link {% if request.resolver_match.url_name == 'announcement_create' %}active{% endif %}"
+          href="{% url 'announcement_create' %}"><span class="side-icon">📣</span>Publier une annonce</a>
         {% endif %}
-        <div style="display:flex;flex-direction:column;overflow:hidden;">
-          <span style="font-size:0.9rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">{{ user.get_full_name|default:user.username }}</span>
-          <span style="font-size:0.72rem;color:rgba(255,255,255,0.6);text-transform:capitalize;">{{ user.get_user_type_display }}</span>
-        </div>
-      </div>
-      <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
-        {% csrf_token %}
-        <button type="submit" class="side-link" style="width: 100%; background: none; border: none; font: inherit; cursor: pointer; text-align: left;">
-          <span class="side-icon">↪</span>Déconnexion
-        </button>
-      </form>
-    </div>
-  </aside>
 
-  <section class="content-area">
-    <header class="topbar">
-      <div class="topbar-actions" style="width:100%;justify-content:space-between;">
-        <form action="{% url 'search' %}" method="get" style="display:flex;align-items:center;flex:1;max-width:420px;">
-          <input type="search" name="q" placeholder="🔍 Rechercher cours, devoirs, annonces..." value="{{ query|default:'' }}" style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,0.85);font-size:0.88rem;outline:none;">
-        </form>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <a href="{% url 'profile' %}" class="status-pill" style="text-decoration:none;">{{ user.username }}</a>
+        {% if user.is_staff or user.is_superuser or user.user_type == 'admin' %}
+        <div class="side-label" style="margin-top:14px;">Administration</div>
+        <a class="side-link {% if request.resolver_match.url_name == 'user_manage' %}active{% endif %}"
+          href="{% url 'user_manage' %}"><span class="side-icon">👥</span>Gestion Utilisateurs</a>
+        <a class="side-link {% if request.resolver_match.url_name == 'user_create' %}active{% endif %}"
+          href="{% url 'user_create' %}"><span class="side-icon">👤+</span>Ajouter un membre</a>
+        {% endif %}
+
+        <div class="side-label" style="margin-top:14px;">Mon Compte</div>
+        <a class="side-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+          href="{% url 'profile' %}"><span class="side-icon">⚙️</span>Mon profil</a>
+      </nav>
+      <div class="side-bottom">
+        <div class="user-chip">
+          {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" class="avatar" alt="Avatar" style="object-fit:cover;">
+          {% else %}
+          <span class="avatar">{{ user.username|first|upper }}</span>
+          {% endif %}
+          <div style="display:flex;flex-direction:column;overflow:hidden;">
+            <span style="font-size:0.9rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">{{
+              user.get_full_name|default:user.username }}</span>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.6);text-transform:capitalize;">{{
+              user.get_user_type_display }}</span>
+          </div>
         </div>
+        <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
+          {% csrf_token %}
+          <button type="submit" class="side-link"
+            style="width: 100%; background: none; border: none; font: inherit; cursor: pointer; text-align: left;">
+            <span class="side-icon">↪</span>Déconnexion
+          </button>
+        </form>
       </div>
-    </header>
-    <main class="container">
-{% else %}
-  <nav class="topbar public-topbar">
-    <a href="{% url 'home' %}" class="brand" style="padding:0;color:#0f172a;">
-      <span class="brand-mark">U</span><span>University</span>
-    </a>
-    <div class="topbar-actions">
-      <a href="{% url 'login' %}" class="button ghost">Connexion</a>
-      <a href="{% url 'register' %}" class="button primary">Inscription</a>
-    </div>
-  </nav>
-  <main class="container">
-{% endif %}
-{% for message in messages %}
-<ul class="messages"><li>{{ message }}</li></ul>
-{% endfor %}
-{% block content %}{% endblock %}
-    </main>
-{% if user.is_authenticated %}
-  </section>
-</div>
-{% endif %}
+    </aside>
+
+    <section class="content-area">
+      <header class="topbar">
+        <div class="topbar-actions" style="width:100%;justify-content:space-between;">
+          <form action="{% url 'search' %}" method="get"
+            style="display:flex;align-items:center;flex:1;max-width:420px;">
+            <input type="search" name="q" placeholder="🔍 Rechercher cours, devoirs, annonces..."
+              value="{{ query|default:'' }}"
+              style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,0.85);font-size:0.88rem;outline:none;">
+          </form>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <a href="{% url 'profile' %}" class="status-pill" style="text-decoration:none;">{{ user.username }}</a>
+          </div>
+        </div>
+      </header>
+      <main class="container">
+        {% else %}
+        <nav class="topbar public-topbar">
+          <a href="{% url 'home' %}" class="brand" style="padding:0;color:#0f172a;">
+            <span class="brand-mark">U</span><span>University EUTG</span>
+          </a>
+          <div class="topbar-actions">
+            <a href="{% url 'login' %}" class="button ghost">Connexion</a>
+            <a href="{% url 'register' %}" class="button primary">Inscription</a>
+          </div>
+        </nav>
+        <main class="container">
+          {% endif %}
+          {% for message in messages %}
+          <ul class="messages">
+            <li>{{ message }}</li>
+          </ul>
+          {% endfor %}
+          {% block content %}{% endblock %}
+        </main>
+        {% if user.is_authenticated %}
+    </section>
+  </div>
+  {% endif %}
 </body>
+
 </html>
