@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load mission_extras %}
-{% block title %}Tableau de bord – University Platform{% endblock %}
+{% block title %}Tableau de bord – Platform Universitaire EUTG{% endblock %}
 {% block content %}
 <section class="dashboard-hero">
   <div>
-    <div class="eyebrow">Campus Pro · {{ user.get_user_type_display }}</div>
+    <div class="eyebrow">Campus Pro EUTG · {{ user.get_user_type_display }}</div>
     <h1>Bonjour {{ user.first_name|default:user.username }}.</h1>
     <p class="muted">Votre espace central pour suivre vos cours, vos missions et les actualités universitaires.</p>
   </div>
@@ -37,7 +37,8 @@
   <article class="stat-card warning">
     <div class="eyebrow">Moyenne Générale</div>
     <div class="stat-number">
-      {% if stats.avg_grade is not None %}{{ stats.avg_grade }}<small style="font-size:1.1rem;color:var(--muted);">/20</small>{% else %}—{% endif %}
+      {% if stats.avg_grade is not None %}{{ stats.avg_grade }}<small
+        style="font-size:1.1rem;color:var(--muted);">/20</small>{% else %}—{% endif %}
     </div>
     <div class="muted">{{ stats.completed_submissions|default:0 }} devoir(s) rendu(s)</div>
   </article>
@@ -75,14 +76,19 @@
           </div>
           <div>
             <h3><a href="{% url 'course_detail' course.pk %}" style="color:inherit;">{{ course.title }}</a></h3>
-            <p class="muted" style="font-size:0.85rem;">Prof. {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
+            <p class="muted" style="font-size:0.85rem;">Prof. {{
+              course.teacher.get_full_name|default:course.teacher.username }}</p>
           </div>
           <div style="margin-top:auto;display:flex;gap:6px;align-items:center;">
-            <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1;padding:8px 12px;font-size:0.85rem;">Accéder au cours</a>
+            <a class="button secondary" href="{% url 'course_detail' course.pk %}"
+              style="flex:1;padding:8px 12px;font-size:0.85rem;">Accéder au cours</a>
             {% if user.is_teacher_or_admin %}
-            <a class="button secondary" href="{% url 'resource_create' course.pk %}" style="padding:8px 10px;font-size:0.85rem;" title="Ajouter un document">📄</a>
-            <a class="button secondary" href="{% url 'course_edit' course.pk %}" style="padding:8px 10px;font-size:0.85rem;" title="Modifier">✏️</a>
-            <a class="button ghost" href="{% url 'course_delete' course.pk %}" style="padding:8px 10px;font-size:0.85rem;color:var(--danger);" title="Supprimer">🗑️</a>
+            <a class="button secondary" href="{% url 'resource_create' course.pk %}"
+              style="padding:8px 10px;font-size:0.85rem;" title="Ajouter un document">📄</a>
+            <a class="button secondary" href="{% url 'course_edit' course.pk %}"
+              style="padding:8px 10px;font-size:0.85rem;" title="Modifier">✏️</a>
+            <a class="button ghost" href="{% url 'course_delete' course.pk %}"
+              style="padding:8px 10px;font-size:0.85rem;color:var(--danger);" title="Supprimer">🗑️</a>
             {% endif %}
           </div>
         </article>
@@ -106,29 +112,35 @@
         {% for assignment in assignments %}
         <article class="assignment-item">
           <div>
-            <strong><a href="{% url 'assignment_detail' assignment.pk %}" style="color:inherit;">{{ assignment.title }}</a></strong>
-            <div class="assignment-meta">{{ assignment.course.code }} · Limite : {{ assignment.due_date|date:'d/m/Y à H:i' }}</div>
+            <strong><a href="{% url 'assignment_detail' assignment.pk %}" style="color:inherit;">{{ assignment.title
+                }}</a></strong>
+            <div class="assignment-meta">{{ assignment.course.code }} · Limite : {{ assignment.due_date|date:'d/m/Y à
+              H:i' }}</div>
           </div>
 
           <div style="display:flex;gap:6px;align-items:center;">
             {% if user.user_type == 'student' %}
-              {% with sub=submissions|get_item:assignment.pk %}
-                {% if sub %}
-                  {% if sub.grade is not None %}
-                    <span class="pill success">{{ sub.grade }}/{{ assignment.max_points }}</span>
-                  {% else %}
-                    <span class="pill warning">Rendu</span>
-                  {% endif %}
-                {% else %}
-                  <a href="{% url 'assignment_detail' assignment.pk %}" class="button primary" style="padding:4px 10px;font-size:0.78rem;">Rendre</a>
-                {% endif %}
-              {% endwith %}
+            {% with sub=submissions|get_item:assignment.pk %}
+            {% if sub %}
+            {% if sub.grade is not None %}
+            <span class="pill success">{{ sub.grade }}/{{ assignment.max_points }}</span>
             {% else %}
-              <a href="{% url 'assignment_submissions' assignment.pk %}" class="button secondary" style="padding:4px 10px;font-size:0.78rem;">Copies</a>
-              {% if user.is_teacher_or_admin %}
-              <a href="{% url 'assignment_edit' assignment.pk %}" class="button secondary" style="padding:4px 8px;font-size:0.78rem;" title="Modifier">✏️</a>
-              <a href="{% url 'assignment_delete' assignment.pk %}" class="button ghost" style="padding:4px 8px;font-size:0.78rem;color:var(--danger);" title="Supprimer">🗑️</a>
-              {% endif %}
+            <span class="pill warning">Rendu</span>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'assignment_detail' assignment.pk %}" class="button primary"
+              style="padding:4px 10px;font-size:0.78rem;">Rendre</a>
+            {% endif %}
+            {% endwith %}
+            {% else %}
+            <a href="{% url 'assignment_submissions' assignment.pk %}" class="button secondary"
+              style="padding:4px 10px;font-size:0.78rem;">Copies</a>
+            {% if user.is_teacher_or_admin %}
+            <a href="{% url 'assignment_edit' assignment.pk %}" class="button secondary"
+              style="padding:4px 8px;font-size:0.78rem;" title="Modifier">✏️</a>
+            <a href="{% url 'assignment_delete' assignment.pk %}" class="button ghost"
+              style="padding:4px 8px;font-size:0.78rem;color:var(--danger);" title="Supprimer">🗑️</a>
+            {% endif %}
             {% endif %}
           </div>
         </article>
@@ -155,16 +167,21 @@
         {% for announce in announcements %}
         <div style="padding-bottom:12px;border-bottom:1px solid var(--line);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <span class="pill info" style="font-size:0.68rem;padding:3px 8px;">{{ announce.course.code|default:'Campus' }}</span>
+            <span class="pill info" style="font-size:0.68rem;padding:3px 8px;">{{ announce.course.code|default:'Campus'
+              }}</span>
             <div style="display:flex;gap:4px;align-items:center;">
               <span class="muted" style="font-size:0.75rem;">{{ announce.created_at|date:'d/m H:i' }}</span>
               {% if user.is_teacher_or_admin %}
-              <a href="{% url 'announcement_edit' announce.pk %}" style="font-size:0.75rem;text-decoration:none;" title="Modifier">✏️</a>
-              <a href="{% url 'announcement_delete' announce.pk %}" style="font-size:0.75rem;text-decoration:none;color:var(--danger);" title="Supprimer">🗑️</a>
+              <a href="{% url 'announcement_edit' announce.pk %}" style="font-size:0.75rem;text-decoration:none;"
+                title="Modifier">✏️</a>
+              <a href="{% url 'announcement_delete' announce.pk %}"
+                style="font-size:0.75rem;text-decoration:none;color:var(--danger);" title="Supprimer">🗑️</a>
               {% endif %}
             </div>
           </div>
-          <strong style="font-size:0.9rem;display:block;margin-bottom:4px;"><a href="{% url 'announcement_detail' announce.pk %}" style="color:inherit;">{{ announce.title }}</a></strong>
+          <strong style="font-size:0.9rem;display:block;margin-bottom:4px;"><a
+              href="{% url 'announcement_detail' announce.pk %}" style="color:inherit;">{{ announce.title
+              }}</a></strong>
           <p class="muted" style="font-size:0.82rem;margin:0;">{{ announce.content|truncatewords:16 }}</p>
         </div>
         {% empty %}
