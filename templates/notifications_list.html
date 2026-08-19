@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Centre de Notifications – Plateforme Universitaire EUTG{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width:840px;margin:0 auto;padding:32px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:1px solid var(--line);padding-bottom:16px;">
+    <div>
+      <h1 style="font-size:1.6rem;margin-bottom:4px;display:flex;align-items:center;gap:10px;">
+        <span>🔔 Centre de Notifications</span>
+        {% if unread_count > 0 %}
+        <span class="pill danger" style="font-size:0.75rem;padding:3px 10px;background:#ef4444;color:white;font-weight:800;">{{ unread_count }} non lue(s)</span>
+        {% endif %}
+      </h1>
+      <p class="muted" style="margin:0;font-size:0.88rem;">Restez informé en temps réel des annonces, devoirs, réponses au forum et notes.</p>
+    </div>
+
+    {% if unread_count > 0 %}
+    <a href="{% url 'notifications_mark_all_read' %}" class="button secondary" style="font-size:0.84rem;padding:8px 14px;">
+      ✓ Tout marquer comme lu
+    </a>
+    {% endif %}
+  </div>
+
+  <div style="display:grid;gap:12px;">
+    {% for notif in notifications %}
+    <a href="{% url 'notification_read' notif.pk %}" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-radius:16px;border:1px solid {% if not notif.is_read %}var(--primary){% else %}var(--line){% endif %};background:{% if not notif.is_read %}rgba(79, 70, 229, 0.04){% else %}white{% endif %};text-decoration:none;color:inherit;transition:transform 0.15s ease, box-shadow 0.15s ease;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <strong style="font-size:0.95rem;color:var(--ink);">{{ notif.title }}</strong>
+          {% if not notif.is_read %}
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;" title="Non lu"></span>
+          {% endif %}
+        </div>
+        {% if notif.message %}
+        <p class="muted" style="margin:0 0 6px 0;font-size:0.86rem;">{{ notif.message }}</p>
+        {% endif %}
+        <span style="font-size:0.75rem;color:#94a3b8;">{{ notif.created_at|date:'d/m/Y à H:i' }}</span>
+      </div>
+
+      <span style="font-size:0.84rem;color:var(--primary);font-weight:600;white-space:nowrap;margin-left:16px;">Consulter →</span>
+    </a>
+    {% empty %}
+    <div style="text-align:center;padding:48px 20px;" class="muted">
+      <div style="font-size:2.5rem;margin-bottom:12px;">🔕</div>
+      <h3>Aucune notification pour le moment</h3>
+      <p style="font-size:0.88rem;">Toutes vos activités récentes apparaîtront ici.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

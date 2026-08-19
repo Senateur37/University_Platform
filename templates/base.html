@@ -570,6 +570,11 @@
           <span><span class="side-icon">💬</span>Forum de discussion</span>
           {% if unread_forum_count %}<span class="pill danger" style="padding:2px 7px;font-size:0.7rem;font-weight:800;background:#ef4444;color:white;">{{ unread_forum_count }}</span>{% endif %}
         </a>
+        <a class="side-link {% if 'notification' in request.resolver_match.url_name %}active{% endif %}"
+          href="{% url 'notifications_list' %}" style="display:flex;justify-content:space-between;align-items:center;">
+          <span><span class="side-icon">🔔</span>Notifications</span>
+          {% if notifications_unread_count %}<span class="pill danger" style="padding:2px 7px;font-size:0.7rem;font-weight:800;background:#ef4444;color:white;">{{ notifications_unread_count }}</span>{% endif %}
+        </a>
 
         {% if user.is_teacher_or_admin %}
         <div class="side-label" style="margin-top:14px;">Gestion Pédagogique</div>
@@ -655,6 +660,9 @@
                   {% empty %}
                   <div style="padding:20px;text-align:center;font-size:0.85rem;" class="muted">Aucune notification pour le moment.</div>
                   {% endfor %}
+                </div>
+                <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid var(--line);text-align:center;">
+                  <a href="{% url 'notifications_list' %}" style="font-size:0.8rem;color:var(--primary);font-weight:600;text-decoration:none;">Voir toutes les notifications →</a>
                 </div>
               </div>
             </div>

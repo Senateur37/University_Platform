@@ -21,6 +21,7 @@ urlpatterns = [
     path('utilisateurs/<int:pk>/supprimer/', views.user_delete_view, name='user_delete'),
     path('recherche/', views.search_view, name='search'),
     path('rapports/', views.reports_view, name='reports'),
+    path('notifications/', views.notifications_list_view, name='notifications_list'),
     path('notifications/<int:pk>/lire/', views.notification_read_view, name='notification_read'),
     path('notifications/tout-lire/', views.notifications_mark_all_read_view, name='notifications_mark_all_read'),
 ]

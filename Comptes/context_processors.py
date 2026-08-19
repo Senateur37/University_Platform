@@ -1,5 +1,4 @@
 from .models import Notification
-from django.urls import reverse
 
 def notifications_context(request):
     if not request.user.is_authenticated:
@@ -13,35 +12,40 @@ def notifications_context(request):
 
     user_notifs = Notification.objects.filter(recipient=request.user)
 
-    # Auto-generate welcome notifications if user has 0 notifications
+    # Ensure existing users always have welcome notifications if empty
     if not user_notifs.exists():
-        try:
-            Notification.objects.bulk_create([
-                Notification(
-                    recipient=request.user,
-                    notification_type='announcement',
-                    title="📢 Bienvenue sur la plateforme EUTG !",
-                    message="Consultez vos cours, devoirs et annonces depuis votre espace.",
-                    link=reverse('dashboard')
-                ),
-                Notification(
-                    recipient=request.user,
-                    notification_type='assignment',
-                    title="🎯 Vos devoirs et travaux à rendre",
-                    message="Découvrez vos missions et déposez vos devoirs dans l'onglet Missions.",
-                    link=reverse('assignment_list')
-                ),
-                Notification(
-                    recipient=request.user,
-                    notification_type='forum',
-                    title="💬 Forum de discussion interactif",
-                    message="Posez vos questions et échangez avec vos enseignants et camarades.",
-                    link=reverse('topic_list')
-                ),
-            ])
-            user_notifs = Notification.objects.filter(recipient=request.user)
-        except Exception:
-            pass
+        welcome_items = [
+            {
+                'type': 'announcement',
+                'title': '📢 Bienvenue sur la plateforme EUTG !',
+                'message': 'Consultez vos cours, devoirs et annonces depuis votre espace central.',
+                'link': '/dashboard/'
+            },
+            {
+                'type': 'assignment',
+                'title': '🎯 Vos devoirs et travaux à rendre',
+                'message': 'Découvrez vos missions et téléversez vos travaux dans l\'onglet Missions.',
+                'link': '/missions/'
+            },
+            {
+                'type': 'forum',
+                'title': '💬 Forum de discussion interactif',
+                'message': 'Posez vos questions et échangez avec vos enseignants et camarades.',
+                'link': '/forum/'
+            }
+        ]
+        for item in welcome_items:
+            Notification.objects.get_or_create(
+                recipient=request.user,
+                notification_type=item['type'],
+                title=item['title'],
+                defaults={
+                    'message': item['message'],
+                    'link': item['link'],
+                    'is_read': False
+                }
+            )
+        user_notifs = Notification.objects.filter(recipient=request.user)
 
     unread_notifs = user_notifs.filter(is_read=False)
 

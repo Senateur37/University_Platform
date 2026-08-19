@@ -429,3 +429,13 @@ def notifications_mark_all_read_view(request):
     return redirect(request.META.get('HTTP_REFERER') or 'dashboard')
 
 
+@login_required
+def notifications_list_view(request):
+    notifications = Notification.objects.filter(recipient=request.user)
+    unread_count = notifications.filter(is_read=False).count()
+    return render(request, 'notifications_list.html', {
+        'notifications': notifications,
+        'unread_count': unread_count,
+    })
+
+
