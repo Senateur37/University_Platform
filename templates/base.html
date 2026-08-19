@@ -594,10 +594,8 @@
           <span class="avatar">{{ user.username|first|upper }}</span>
           {% endif %}
           <div style="display:flex;flex-direction:column;overflow:hidden;">
-            <span style="font-size:0.9rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">{{
-              user.get_full_name|default:user.username }}</span>
-            <span style="font-size:0.72rem;color:rgba(255,255,255,0.6);text-transform:capitalize;">{{
-              user.get_user_type_display }}</span>
+            <span style="font-size:0.9rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">{{ user.get_full_name|default:user.username }}</span>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.6);text-transform:capitalize;">{{ user.get_user_type_display }}</span>
           </div>
         </div>
         <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
