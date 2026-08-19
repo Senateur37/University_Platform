@@ -548,6 +548,10 @@
       max-width: 100%;
     }
 
+    .brand-text-mobile {
+      display: none;
+    }
+
     @media (max-width: 980px) {
       .mobile-header {
         display: flex;
@@ -582,14 +586,8 @@
         flex-direction: column;
         align-items: flex-start;
       }
-    }
 
-    @media (max-width: 640px) {
-      .topbar {
-        padding: 8px 12px;
-        gap: 6px;
-      }
-
+      /* Public Topbar Responsiveness for Mobile & Tablet */
       .public-topbar {
         padding: 8px 12px;
         display: flex;
@@ -602,12 +600,18 @@
       }
 
       .public-topbar .brand-text-desktop {
-        display: none;
+        display: none !important;
+      }
+
+      .public-topbar .brand-text-mobile {
+        display: inline !important;
+        font-weight: 800;
       }
 
       .public-topbar .brand {
         font-size: 0.85rem;
         gap: 6px;
+        flex-shrink: 0;
       }
 
       .public-topbar .brand-mark {
@@ -625,10 +629,17 @@
       }
 
       .topbar-actions .button {
-        padding: 7px 12px !important;
-        font-size: 0.8rem !important;
-        border-radius: 12px !important;
+        padding: 6px 11px !important;
+        font-size: 0.78rem !important;
+        border-radius: 10px !important;
         white-space: nowrap !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        padding: 8px 12px;
+        gap: 6px;
       }
 
       .container {
@@ -791,7 +802,7 @@
         {% else %}
         <nav class="topbar public-topbar">
           <a href="{% url 'home' %}" class="brand" style="padding:0;color:#0f172a;">
-            <span class="brand-mark">U</span><span class="brand-text-desktop">Universite EUTG</span>
+            <span class="brand-mark">U</span><span class="brand-text-desktop">Universite EUTG</span><span class="brand-text-mobile">EUTG</span>
           </a>
           <div class="topbar-actions">
             <a href="{% url 'login' %}" class="button ghost">Connexion</a>
