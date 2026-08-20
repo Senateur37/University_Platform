@@ -2,6 +2,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from Codex.validators import validate_avatar_image, validate_file_size
+
 class User(AbstractUser):
     USER_TYPE_CHOICES = [
         ("student", "Étudiant"),
@@ -12,7 +14,7 @@ class User(AbstractUser):
     is_validated = models.BooleanField(default=True)  # validation manuelle ou automatique
     bio = models.TextField(blank=True, verbose_name="Biographie")
     filiere = models.CharField(max_length=100, blank=True, verbose_name="Filière / Département")
-    avatar = models.FileField(upload_to="avatars/", null=True, blank=True)
+    avatar = models.FileField(upload_to="avatars/", null=True, blank=True, validators=[validate_avatar_image, validate_file_size])
 
     @property
     def is_teacher_or_admin(self):

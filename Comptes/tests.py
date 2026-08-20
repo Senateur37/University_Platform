@@ -237,3 +237,42 @@ class ComprehensivePlatformTests(TestCase):
         unread_count = Notification.objects.filter(recipient=self.student, is_read=False).count()
         self.assertEqual(unread_count, 0)
 
+    def test_security_headers(self):
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.headers.get('X-Content-Type-Options'), 'nosniff')
+        self.assertEqual(response.headers.get('X-Frame-Options'), 'DENY')
+        self.assertEqual(response.headers.get('X-XSS-Protection'), '1; mode=block')
+        self.assertIn('Content-Security-Policy', response.headers)
+        self.assertIn('Permissions-Policy', response.headers)
+
+    def test_login_rate_limiting(self):
+        # Perform 5 failed login attempts
+        for i in range(5):
+            response = self.client.post(reverse('login'), {'username': 'wrong_user', 'password': 'wrong_password'})
+            self.assertEqual(response.status_code, 200)
+
+        # 6th attempt should be blocked with HTTP 429
+        response_blocked = self.client.post(reverse('login'), {'username': 'wrong_user', 'password': 'wrong_password'})
+        self.assertEqual(response_blocked.status_code, 429)
+        self.assertIn('Accès temporairement bloqué', response_blocked.content.decode('utf-8'))
+
+    def test_dangerous_file_upload_blocking(self):
+        from django.core.exceptions import ValidationError
+        from Codex.validators import validate_secure_file_extension, validate_avatar_image
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        # Executable file test
+        bad_file = SimpleUploadedFile("malicious.php", b"<?php echo 'hacked'; ?>", content_type="application/x-php")
+        with self.assertRaises(ValidationError):
+            validate_secure_file_extension(bad_file)
+
+        bad_exe = SimpleUploadedFile("virus.exe", b"MZ...", content_type="application/x-msdownload")
+        with self.assertRaises(ValidationError):
+            validate_secure_file_extension(bad_exe)
+
+        # Non-image avatar test
+        bad_avatar = SimpleUploadedFile("shell.py", b"import os; os.system('ls')", content_type="text/x-python")
+        with self.assertRaises(ValidationError):
+            validate_avatar_image(bad_avatar)
+
+
