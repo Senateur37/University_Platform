@@ -12,3 +12,8 @@ urlpatterns = [
     path('forum/', include('Forum.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
+
+handler404 = 'Comptes.views.custom_404_view'
+handler500 = 'Comptes.views.custom_500_view'
+handler403 = 'Comptes.views.custom_403_view'
+

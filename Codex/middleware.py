@@ -112,3 +112,25 @@ class LoginRateLimitMiddleware:
         else:
             ip = request.META.get('REMOTE_ADDR', '127.0.0.1')
         return ip
+
+
+class AntiReverseEngineeringMiddleware:
+    """
+    Middleware that strips server signature headers (Server, X-Powered-By, WSGI info)
+    to prevent server reconnaissance and fingerprinting.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        
+        # Strip server signature headers to prevent fingerprinting
+        for header in ['Server', 'X-Powered-By', 'X-Django-Version', 'X-AspNet-Version', 'X-Runtime']:
+            if header in response.headers:
+                del response.headers[header]
+                
+        # Obfuscate server header
+        response.headers['Server'] = 'Protected-Campus-Server'
+        return response
+

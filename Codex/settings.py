@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'Codex.middleware.SecurityHeadersMiddleware',
     'Codex.middleware.LoginRateLimitMiddleware',
+    'Codex.middleware.AntiReverseEngineeringMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

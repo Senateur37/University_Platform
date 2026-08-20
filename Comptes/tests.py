@@ -275,4 +275,16 @@ class ComprehensivePlatformTests(TestCase):
         with self.assertRaises(ValidationError):
             validate_avatar_image(bad_avatar)
 
+    def test_anti_reverse_engineering_headers(self):
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.headers.get('Server'), 'Protected-Campus-Server')
+        self.assertNotIn('X-Powered-By', response.headers)
+        self.assertNotIn('X-Django-Version', response.headers)
+
+    def test_custom_error_pages(self):
+        response_404 = self.client.get('/route-qui-n-existe-pas-12345/')
+        self.assertEqual(response_404.status_code, 404)
+        self.assertIn('Page non trouvée', response_404.content.decode('utf-8'))
+
+
 
