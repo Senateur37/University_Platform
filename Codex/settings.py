@@ -120,14 +120,19 @@ USE_POSTGRES = bool(DATABASE_URL) or (
     os.environ.get('DB_ENGINE', '').lower() == 'postgresql'
 )
 
+ROOT_DB = BASE_DIR / 'db.sqlite3'
 DATA_DIR = BASE_DIR / 'data'
-if not DATA_DIR.exists():
-    try:
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
-    except Exception:
-        DATA_DIR = BASE_DIR
+DATA_DB = DATA_DIR / 'db.sqlite3'
 
-SQLITE_PATH = DATA_DIR / 'db.sqlite3' if DATA_DIR.exists() and os.access(DATA_DIR, os.W_OK) else BASE_DIR / 'db.sqlite3'
+# Prioriser la base de données existante avec toutes ses tables
+if ROOT_DB.exists() and ROOT_DB.stat().st_size > 0:
+    SQLITE_PATH = ROOT_DB
+elif DATA_DB.exists() and DATA_DB.stat().st_size > 0:
+    SQLITE_PATH = DATA_DB
+elif DATA_DIR.exists() and os.access(DATA_DIR, os.W_OK):
+    SQLITE_PATH = DATA_DB
+else:
+    SQLITE_PATH = ROOT_DB
 
 if DATABASE_URL:
     DATABASES = {

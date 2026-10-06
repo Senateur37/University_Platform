@@ -23,22 +23,45 @@ print('ATTENTION: Delai d attente de base depasse, tentative de migration...')
 "
 
 echo "==> Application des migrations..."
-python manage.py migrate --noinput || echo "WARN: Echec migrate au demarrage."
+python manage.py migrate --noinput
 
-echo "==> Verification des comptes utilisateurs..."
+echo "==> Configuration du compte super-administrateur..."
 python -c "
 import os, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Codex.settings')
 django.setup()
 from Comptes.models import User
-if not User.objects.filter(is_superuser=True).exists():
+admin_user, _ = User.objects.get_or_create(
+    username='admin',
+    defaults={
+        'email': 'admin@university.edu',
+        'first_name': 'Administrateur',
+        'last_name': 'Principal',
+        'user_type': 'admin',
+        'is_staff': True,
+        'is_superuser': True,
+        'is_validated': True,
+        'filiere': 'Direction',
+    }
+)
+admin_user.set_password('admin123')
+admin_user.is_staff = True
+admin_user.is_superuser = True
+admin_user.is_validated = True
+admin_user.user_type = 'admin'
+admin_user.save()
+print('==> Compte admin configure: admin / admin123')
+
+# Si aucun cours n'existe, initialiser les donnees de demonstration
+from Cours.models import Course
+if Course.objects.count() == 0:
     try:
         import seed_codex
         seed_codex.seed()
-        print('==> Initialisation des comptes (admin, prof, etudiant) effectuee avec succes.')
-    except Exception as err:
-        print(f'==> Note: Seed non execute: {err}')
-" || echo "WARN: Verification des comptes terminee."
+        print('==> Donnees de demonstration initialisees.')
+    except Exception as e:
+        print(f'==> Note seed: {e}')
+"
 
 echo "==> Lancement du service..."
 exec "$@"
