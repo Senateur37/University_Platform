@@ -12,19 +12,29 @@ def health_check_view(request):
     """
     db_ok = False
     db_info = "OK"
+    tables = []
+    user_count = -1
+    last_error = ""
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
             cursor.fetchone()
         db_ok = True
+        tables = connection.introspection.table_names()
+        from Comptes.models import User
+        user_count = User.objects.count()
     except Exception as e:
         db_info = f"Database error: {str(e)}"
+        last_error = str(e)
 
     status_code = 200 if db_ok else 503
     return JsonResponse({
         'status': 'healthy' if db_ok else 'degraded',
         'database': db_info,
         'engine': connection.settings_dict.get('ENGINE', 'unknown').split('.')[-1],
+        'tables_count': len(tables),
+        'user_count': user_count,
+        'error': last_error,
     }, status=status_code)
 
 urlpatterns = [

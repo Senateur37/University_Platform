@@ -497,13 +497,15 @@ def custom_404_view(request, exception=None):
     return render(request, '404.html', status=404)
 
 def custom_500_view(request):
-    import sys
-    exc_type, exc_value, _ = sys.exc_info()
+    import sys, traceback
+    exc_type, exc_value, tb = sys.exc_info()
+    error_str = f"{exc_type.__name__ if exc_type else 'Error'}: {exc_value}" if exc_value else "Unknown"
+    tb_str = "".join(traceback.format_exception(exc_type, exc_value, tb)) if exc_value else ""
     if exc_value:
-        logger.error(f"HTTP 500 sur {request.path}: {exc_type.__name__}: {exc_value}", exc_info=True)
+        logger.error(f"HTTP 500 sur {request.path}: {error_str}\n{tb_str}")
     else:
         logger.error(f"HTTP 500 sur {request.path} sans information d'exception.")
-    return render(request, '500.html', status=500)
+    return render(request, '500.html', {'error_detail': error_str, 'traceback': tb_str}, status=500)
 
 def custom_403_view(request, exception=None):
     return render(request, '403.html', status=403)

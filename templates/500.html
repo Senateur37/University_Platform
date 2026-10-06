@@ -14,6 +14,14 @@
       <a href="{% url 'dashboard' %}" class="button primary">Retour au tableau de bord</a>
       <a href="{% url 'home' %}" class="button secondary">Accueil</a>
     </div>
+
+    {% if error_detail and error_detail != 'Unknown' %}
+    <!-- Error Diagnostic: {{ error_detail }} -->
+    <details style="margin-top:20px;text-align:left;background:#f8fafc;padding:12px 16px;border-radius:14px;border:1px solid #e2e8f0;font-size:0.8rem;color:#475569;">
+      <summary style="cursor:pointer;font-weight:700;color:#ef4444;">Détails techniques (Diagnostic serveur)</summary>
+      <pre style="white-space:pre-wrap;margin-top:8px;font-family:monospace;font-size:0.75rem;max-height:200px;overflow-y:auto;">{{ error_detail }}&#10;{{ traceback }}</pre>
+    </details>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
