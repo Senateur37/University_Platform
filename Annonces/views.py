@@ -79,6 +79,9 @@ def announcement_create(request):
 @user_type_required('teacher', 'admin')
 def announcement_edit(request, pk):
     announcement = get_object_or_404(Announcement, pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and announcement.author != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas l'auteur de cette annonce.")
+        return redirect('announcement_detail', pk=announcement.pk)
 
     form = AnnouncementForm(request.POST or None, instance=announcement)
     if request.user.user_type == 'teacher':
@@ -95,6 +98,9 @@ def announcement_edit(request, pk):
 @user_type_required('teacher', 'admin')
 def announcement_delete(request, pk):
     announcement = get_object_or_404(Announcement, pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and announcement.author != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas autorisé à supprimer cette annonce.")
+        return redirect('announcement_list')
 
     if request.method == 'POST':
         title = announcement.title

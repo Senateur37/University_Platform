@@ -286,5 +286,73 @@ class ComprehensivePlatformTests(TestCase):
         self.assertEqual(response_404.status_code, 404)
         self.assertIn('Page non trouvée', response_404.content.decode('utf-8'))
 
+    def test_weak_password_registration_rejected(self):
+        response = self.client.post(reverse('register'), {
+            'username': 'newuser123',
+            'email': 'newuser@example.com',
+            'first_name': 'New',
+            'last_name': 'User',
+            'filiere': 'Info',
+            'user_type': 'student',
+            'bio': 'Test bio',
+            'password': '123',
+            'password_confirmation': '123'
+        })
+        # Should stay on page (200 with form errors) instead of redirecting
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username='newuser123').exists())
+
+    def test_idor_protection_course_and_assignment_edit(self):
+        other_teacher = User.objects.create_user(username='other_teacher', password='password123', user_type='teacher')
+        self.client.force_login(other_teacher)
+
+        # Attempt to edit another teacher's course
+        response_course = self.client.post(reverse('course_edit', args=[self.course.pk]), {
+            'title': 'Hacked Title',
+            'code': 'ALG101',
+            'category': 'Informatique',
+            'description': 'Hacked description',
+        })
+        self.course.refresh_from_db()
+        self.assertNotEqual(self.course.title, 'Hacked Title')
+
+        # Attempt to edit another teacher's assignment
+        response_assign = self.client.post(reverse('assignment_edit', args=[self.assignment.pk]), {
+            'course': self.course.pk,
+            'title': 'Hacked Assignment',
+            'description': 'Hacked',
+            'max_points': 20.00,
+            'due_date': timezone.now() + timedelta(days=2),
+        })
+        self.assignment.refresh_from_db()
+        self.assertNotEqual(self.assignment.title, 'Hacked Assignment')
+
+    def test_non_enrolled_student_cannot_submit_assignment(self):
+        self.client.force_login(self.student)
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        test_file = SimpleUploadedFile("devoir.pdf", b"%PDF-1.4 test", content_type="application/pdf")
+
+        # Student is not enrolled, submission should be rejected
+        response = self.client.post(reverse('submit_assignment', args=[self.assignment.pk]), {
+            'file': test_file
+        })
+        self.assertFalse(Submission.objects.filter(assignment=self.assignment, student=self.student).exists())
+
+    def test_double_extension_and_svg_blocking(self):
+        from django.core.exceptions import ValidationError
+        from Codex.validators import validate_secure_file_extension
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        # Double extension
+        double_ext_file = SimpleUploadedFile("document.php.pdf", b"echo test", content_type="application/pdf")
+        with self.assertRaises(ValidationError):
+            validate_secure_file_extension(double_ext_file)
+
+        # SVG file (XSS vector)
+        svg_file = SimpleUploadedFile("image.svg", b"<svg><script>alert(1)</script></svg>", content_type="image/svg+xml")
+        with self.assertRaises(ValidationError):
+            validate_secure_file_extension(svg_file)
+
+
 
 

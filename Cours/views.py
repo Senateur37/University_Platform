@@ -125,6 +125,9 @@ def course_create(request):
 @user_type_required('teacher', 'admin')
 def course_edit(request, pk):
     course = get_object_or_404(Course, pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and course.teacher != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas le responsable de ce cours.")
+        return redirect('course_detail', pk=course.pk)
 
     form = CourseForm(request.POST or None, request.FILES or None, instance=course)
     if request.user.is_superuser or request.user.is_staff or request.user.user_type == 'admin':
@@ -156,6 +159,9 @@ def course_edit(request, pk):
 @user_type_required('teacher', 'admin')
 def course_delete(request, pk):
     course = get_object_or_404(Course, pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and course.teacher != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas autorisé à supprimer ce cours.")
+        return redirect('course_list')
 
     if request.method == 'POST':
         title = course.title
@@ -192,6 +198,10 @@ def unenroll(request, pk):
 @user_type_required('teacher', 'admin')
 def resource_create(request, pk):
     course = get_object_or_404(Course, pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and course.teacher != request.user:
+        messages.error(request, "Accès refusé : seul le responsable du cours ou un administrateur peut ajouter une ressource.")
+        return redirect('course_detail', pk=course.pk)
+
     form = ResourceForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         resource = form.save(commit=False)
@@ -206,6 +216,10 @@ def resource_create(request, pk):
 @user_type_required('teacher', 'admin')
 def resource_delete(request, pk, resource_pk):
     course = get_object_or_404(Course, pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and course.teacher != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas autorisé à supprimer cette ressource.")
+        return redirect('course_detail', pk=course.pk)
+
     resource = get_object_or_404(CourseResource, pk=resource_pk, course=course)
     resource.delete()
     messages.success(request, 'Ressource supprimée.')
@@ -227,4 +241,5 @@ def resource_download(request, pk, resource_pk):
     except (FileNotFoundError, ValueError):
         messages.error(request, "Le fichier est introuvable sur le serveur.")
         return redirect('course_detail', pk=pk)
+
 

@@ -61,7 +61,7 @@ class LoginRateLimitMiddleware:
                 elapsed = time.time() - attempts_info['first_attempt']
                 if elapsed < self.LOCKOUT_TIME:
                     remaining_time = int(self.LOCKOUT_TIME - elapsed)
-                    return HttpResponse(
+                    resp = HttpResponse(
                         f"""
                         <!DOCTYPE html>
                         <html lang="fr">
@@ -87,6 +87,8 @@ class LoginRateLimitMiddleware:
                         """,
                         status=429
                     )
+                    resp.headers['Retry-After'] = str(remaining_time)
+                    return resp
 
         response = self.get_response(request)
 

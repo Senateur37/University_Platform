@@ -121,7 +121,10 @@ def assignment_create(request):
 @login_required
 @user_type_required('teacher', 'admin')
 def assignment_edit(request, pk):
-    assignment = get_object_or_404(Assignment, pk=pk)
+    assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and assignment.course.teacher != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas le professeur responsable de cette mission.")
+        return redirect('assignment_detail', pk=assignment.pk)
 
     form = AssignmentForm(request.POST or None, request.FILES or None, instance=assignment)
     if request.user.user_type == 'teacher':
@@ -137,7 +140,10 @@ def assignment_edit(request, pk):
 @login_required
 @user_type_required('teacher', 'admin')
 def assignment_delete(request, pk):
-    assignment = get_object_or_404(Assignment, pk=pk)
+    assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
+    if request.user.user_type != 'admin' and not request.user.is_superuser and assignment.course.teacher != request.user:
+        messages.error(request, "Accès refusé : vous n'êtes pas autorisé à supprimer cette mission.")
+        return redirect('assignment_list')
 
     if request.method == 'POST':
         title = assignment.title
@@ -155,7 +161,11 @@ def assignment_delete(request, pk):
 @login_required
 @user_type_required('student')
 def submit_assignment(request, pk):
-    assignment = get_object_or_404(Assignment, pk=pk)
+    assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
+    if not assignment.course.students.filter(pk=request.user.pk).exists():
+        messages.error(request, "Accès refusé : vous devez être inscrit au cours associé pour rendre un devoir.")
+        return redirect('assignment_detail', pk=assignment.pk)
+
     existing_sub = Submission.objects.filter(assignment=assignment, student=request.user).first()
     
     form = SubmissionForm(request.POST or None, request.FILES or None, instance=existing_sub)

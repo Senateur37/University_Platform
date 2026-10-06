@@ -50,10 +50,31 @@ class RegistrationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user_type'].choices = [choice for choice in self.fields['user_type'].choices if choice[0] != 'admin']
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError("Ce nom d'utilisateur est déjà utilisé.")
+        return username
+
     def clean(self):
         cleaned = super().clean()
-        if cleaned.get('password') != cleaned.get('password_confirmation'):
-            raise forms.ValidationError('Les mots de passe ne correspondent pas.')
+        pwd = cleaned.get('password')
+        pwd_conf = cleaned.get('password_confirmation')
+        if pwd and pwd_conf:
+            if pwd != pwd_conf:
+                self.add_error('password_confirmation', 'Les mots de passe ne correspondent pas.')
+            else:
+                from django.contrib.auth.password_validation import validate_password
+                temp_user = User(
+                    username=cleaned.get('username', ''),
+                    email=cleaned.get('email', ''),
+                    first_name=cleaned.get('first_name', ''),
+                    last_name=cleaned.get('last_name', '')
+                )
+                try:
+                    validate_password(pwd, temp_user)
+                except forms.ValidationError as error:
+                    self.add_error('password', error)
         return cleaned
 
     def save(self, commit=True):
@@ -96,6 +117,17 @@ class AdminUserForm(forms.ModelForm):
             'is_validated': 'Compte validé / approuvé',
             'bio': 'Biographie',
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        pwd = cleaned.get('password')
+        if pwd:
+            from django.contrib.auth.password_validation import validate_password
+            try:
+                validate_password(pwd, self.instance)
+            except forms.ValidationError as error:
+                self.add_error('password', error)
+        return cleaned
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -223,20 +255,26 @@ def user_manage_view(request):
         action = request.POST.get('action')
         target_user = get_object_or_404(User, pk=user_id)
         if action == 'toggle_validation':
-            target_user.is_validated = not target_user.is_validated
-            target_user.save()
-            messages.success(request, f"Statut de validation modifié pour {target_user.username}.")
-        elif action == 'change_role':
-            new_role = request.POST.get('new_role')
-            if new_role in ['student', 'teacher', 'admin']:
-                target_user.user_type = new_role
-                if new_role == 'admin':
-                    target_user.is_staff = True
-                else:
-                    if not target_user.is_superuser:
-                        target_user.is_staff = False
+            if target_user == request.user:
+                messages.error(request, "Action interdite : vous ne pouvez pas désactiver votre propre compte administrateur.")
+            else:
+                target_user.is_validated = not target_user.is_validated
                 target_user.save()
-                messages.success(request, f"Rôle de {target_user.username} mis à jour : {target_user.get_user_type_display()}.")
+                messages.success(request, f"Statut de validation modifié pour {target_user.username}.")
+        elif action == 'change_role':
+            if target_user == request.user:
+                messages.error(request, "Action interdite : vous ne pouvez pas rétrograder votre propre compte administrateur.")
+            else:
+                new_role = request.POST.get('new_role')
+                if new_role in ['student', 'teacher', 'admin']:
+                    target_user.user_type = new_role
+                    if new_role == 'admin':
+                        target_user.is_staff = True
+                    else:
+                        if not target_user.is_superuser:
+                            target_user.is_staff = False
+                    target_user.save()
+                    messages.success(request, f"Rôle de {target_user.username} mis à jour : {target_user.get_user_type_display()}.")
         elif action == 'delete_user':
             if target_user == request.user:
                 messages.error(request, "Vous ne pouvez pas supprimer votre propre compte administrateur en cours d'utilisation.")
