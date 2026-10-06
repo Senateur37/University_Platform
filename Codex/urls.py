@@ -4,7 +4,7 @@ from django.urls import include, path, re_path
 from django.views.static import serve
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path('', include('Comptes.urls')),
     path('cours/', include('Cours.urls')),
     path('missions/', include('Missions.urls')),

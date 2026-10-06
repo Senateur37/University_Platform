@@ -29,19 +29,31 @@ except ImportError:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-*qfrmjj(n+9%-jg6__nk6n4(wxy8d)$d%^6d+i+z(9u1qmmci=')
+# SECURITY: Secret key management with production enforcement
+_secret_key = os.environ.get('SECRET_KEY')
+_debug_env = os.environ.get('DEBUG', 'False').lower() in ['true', '1', 'yes']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 'yes']
+if not _secret_key:
+    if not _debug_env:
+        raise ValueError("CRITICAL: SECRET_KEY environment variable is required in production mode!")
+    # Development fallback with clear warning
+    _secret_key = 'django-insecure-dev-only-environment-change-in-production'
 
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '*').split(',') if host.strip()]
+SECRET_KEY = _secret_key
+DEBUG = _debug_env
+
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
 
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
 
-# Derrière le reverse proxy (Traefik / Coolify)
+# Derrière le reverse proxy (Traefik / Nginx / Coolify)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
+# URL d'administration non devinable (ex: ADMIN_URL=gestion-x7k2p9/)
+ADMIN_URL = os.environ.get('ADMIN_URL', 'admin/').lstrip('/')
+if ADMIN_URL and not ADMIN_URL.endswith('/'):
+    ADMIN_URL += '/'
 
 
 # Application definition
@@ -94,23 +106,40 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Codex.wsgi.application'
 
 
-# Database
+# Database Configuration
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# PostgreSQL is the default enterprise database for Codex.
+import dj_database_url
 
+DATABASE_URL = os.environ.get('DATABASE_URL')
 USE_POSTGRES = (
-    os.environ.get('USE_POSTGRESQL', '').lower() in ['true', '1', 'yes'] or
-    os.environ.get('DB_ENGINE', '').lower() == 'postgresql'
+    os.environ.get('USE_POSTGRESQL', 'True').lower() in ['true', '1', 'yes'] or
+    os.environ.get('DB_ENGINE', '').lower() == 'postgresql' or
+    bool(DATABASE_URL)
 )
 
-if USE_POSTGRES:
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif USE_POSTGRES:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('UNIVERSITY_DB_NAME') or os.environ.get('POSTGRES_DB') or 'university_db',
+            'NAME': os.environ.get('POSTGRES_DB') or os.environ.get('UNIVERSITY_DB_NAME') or 'university_db',
             'USER': os.environ.get('POSTGRES_USER') or os.environ.get('DB_USER') or 'postgres',
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD') or os.environ.get('DB_PASSWORD') or 'postgres',
             'HOST': os.environ.get('POSTGRES_HOST') or os.environ.get('DB_HOST') or 'localhost',
             'PORT': os.environ.get('POSTGRES_PORT') or os.environ.get('DB_PORT') or '5432',
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
+            'OPTIONS': {
+                'client_encoding': 'UTF8',
+            },
         }
     }
 else:
@@ -138,6 +167,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -201,3 +233,15 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+# Protection DoS sur les téléversements
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 Mo
+FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 Mo
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+
+
+
+# Durcissement supplémentaire
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+SESSION_COOKIE_NAME = 'cx_sid'
+CSRF_COOKIE_NAME = 'cx_csrf'
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
