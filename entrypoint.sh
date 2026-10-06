@@ -25,5 +25,20 @@ print('ATTENTION: Delai d attente de base depasse, tentative de migration...')
 echo "==> Application des migrations..."
 python manage.py migrate --noinput || echo "WARN: Echec migrate au demarrage."
 
+echo "==> Verification des comptes utilisateurs..."
+python -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Codex.settings')
+django.setup()
+from Comptes.models import User
+if not User.objects.filter(is_superuser=True).exists():
+    try:
+        import seed_codex
+        seed_codex.seed()
+        print('==> Initialisation des comptes (admin, prof, etudiant) effectuee avec succes.')
+    except Exception as err:
+        print(f'==> Note: Seed non execute: {err}')
+" || echo "WARN: Verification des comptes terminee."
+
 echo "==> Lancement du service..."
 exec "$@"
