@@ -36,15 +36,16 @@ def topic_list(request):
     category_slug = request.GET.get('cat', '').strip()
     query = request.GET.get('q', '').strip()
 
-    topics = ForumTopic.objects.select_related('author', 'category', 'course').prefetch_related('posts').all()
-
-    if category_slug:
-        topics = topics.filter(category__slug=category_slug)
-
-    if query:
-        topics = topics.filter(Q(title__icontains=query) | Q(content__icontains=query))
-
-    categories = ForumCategory.objects.all()
+    try:
+        topics = ForumTopic.objects.select_related('author', 'category', 'course').prefetch_related('posts').all()
+        if category_slug:
+            topics = topics.filter(category__slug=category_slug)
+        if query:
+            topics = topics.filter(Q(title__icontains=query) | Q(content__icontains=query))
+        categories = ForumCategory.objects.all()
+    except Exception:
+        topics = []
+        categories = []
 
     return render(request, 'forum/list.html', {
         'topics': topics,

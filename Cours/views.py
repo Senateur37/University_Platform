@@ -51,17 +51,20 @@ def course_list(request):
     category = request.GET.get('cat', '').strip()
     query = request.GET.get('q', '').strip()
     
-    courses = Course.objects.select_related('teacher').all()
-    if category:
-        courses = courses.filter(category__iexact=category)
-    if query:
-        courses = courses.filter(Q(title__icontains=query) | Q(code__icontains=query) | Q(description__icontains=query))
-
-    categories = Course.objects.values_list('category', flat=True).distinct()
+    try:
+        courses = Course.objects.select_related('teacher').all()
+        if category:
+            courses = courses.filter(category__iexact=category)
+        if query:
+            courses = courses.filter(Q(title__icontains=query) | Q(code__icontains=query) | Q(description__icontains=query))
+        categories = [c for c in Course.objects.values_list('category', flat=True).distinct() if c]
+    except Exception as e:
+        courses = []
+        categories = []
 
     return render(request, 'courses/list.html', {
         'courses': courses,
-        'categories': [c for c in categories if c],
+        'categories': categories,
         'selected_category': category,
         'search_query': query,
     })

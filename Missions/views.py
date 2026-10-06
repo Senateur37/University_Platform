@@ -50,15 +50,19 @@ class GradeForm(forms.ModelForm):
 
 
 def assignment_list(request):
-    assignments = Assignment.objects.select_related('course', 'course__teacher').order_by('due_date')
+    try:
+        assignments = Assignment.objects.select_related('course', 'course__teacher').order_by('due_date')
+    except Exception:
+        assignments = []
     submissions_dict = {}
 
     if request.user.is_authenticated:
-        if request.user.user_type == 'student':
-            user_subs = Submission.objects.filter(student=request.user)
-            submissions_dict = {sub.assignment_id: sub for sub in user_subs}
-        elif request.user.user_type in ['teacher', 'admin']:
-            pass
+        try:
+            if request.user.user_type == 'student':
+                user_subs = Submission.objects.filter(student=request.user)
+                submissions_dict = {sub.assignment_id: sub for sub in user_subs}
+        except Exception:
+            submissions_dict = {}
 
     return render(request, 'missions/list.html', {
         'assignments': assignments,
