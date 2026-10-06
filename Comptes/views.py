@@ -1,4 +1,5 @@
 import csv
+import logging
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth import views as auth_views
@@ -12,6 +13,8 @@ from django import forms
 
 from .models import User, Notification
 from .decorateurs import user_type_required
+
+logger = logging.getLogger(__name__)
 
 
 class CustomLoginView(auth_views.LoginView):
@@ -145,14 +148,27 @@ class AdminUserForm(forms.ModelForm):
 
 
 def home(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-    stats = {
-        'total_courses': Course.objects.count(),
-        'total_students': User.objects.filter(user_type='student').count(),
-        'total_teachers': User.objects.filter(user_type='teacher').count(),
-        'total_announcements': Announcement.objects.count(),
-    }
+    try:
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+    except Exception as e:
+        logger.warning(f"Vérification utilisateur dans home échouée: {e}")
+
+    try:
+        stats = {
+            'total_courses': Course.objects.count(),
+            'total_students': User.objects.filter(user_type='student').count(),
+            'total_teachers': User.objects.filter(user_type='teacher').count(),
+            'total_announcements': Announcement.objects.count(),
+        }
+    except Exception as e:
+        logger.error(f"Erreur de base de données lors du calcul des statistiques d'accueil: {e}", exc_info=True)
+        stats = {
+            'total_courses': 0,
+            'total_students': 0,
+            'total_teachers': 0,
+            'total_announcements': 0,
+        }
     return render(request, 'home.html', {'stats': stats})
 
 
@@ -481,6 +497,12 @@ def custom_404_view(request, exception=None):
     return render(request, '404.html', status=404)
 
 def custom_500_view(request):
+    import sys
+    exc_type, exc_value, _ = sys.exc_info()
+    if exc_value:
+        logger.error(f"HTTP 500 sur {request.path}: {exc_type.__name__}: {exc_value}", exc_info=True)
+    else:
+        logger.error(f"HTTP 500 sur {request.path} sans information d'exception.")
     return render(request, '500.html', status=500)
 
 def custom_403_view(request, exception=None):

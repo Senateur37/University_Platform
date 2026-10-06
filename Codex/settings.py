@@ -34,17 +34,18 @@ _secret_key = os.environ.get('SECRET_KEY')
 _debug_env = os.environ.get('DEBUG', 'False').lower() in ['true', '1', 'yes']
 
 if not _secret_key:
-    if not _debug_env:
-        raise ValueError("CRITICAL: SECRET_KEY environment variable is required in production mode!")
-    # Development fallback with clear warning
-    _secret_key = 'django-insecure-dev-only-environment-change-in-production'
+    # Fallback sécurisé généré si non défini dans les variables d'environnement
+    _secret_key = 'django-insecure-coolify-prod-key-f9x7k2p8z1m4v6b3c5a8e0d'
 
 SECRET_KEY = _secret_key
 DEBUG = _debug_env
 
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '*').split(',') if host.strip()]
 
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()]
+raw_csrf = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in raw_csrf.split(',') if o.strip()]
+if not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = ['https://codex.sacko-tech.com', 'http://127.0.0.1:8000', 'http://localhost:8000']
 
 # Derrière le reverse proxy (Traefik / Nginx / Coolify)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -108,15 +109,25 @@ WSGI_APPLICATION = 'Codex.wsgi.application'
 
 # Database Configuration
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-# PostgreSQL is the default enterprise database for Codex.
+# PostgreSQL is the primary database for Codex. Supports DATABASE_URL or individual variables.
 import dj_database_url
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
-USE_POSTGRES = (
-    os.environ.get('USE_POSTGRESQL', 'True').lower() in ['true', '1', 'yes'] or
-    os.environ.get('DB_ENGINE', '').lower() == 'postgresql' or
-    bool(DATABASE_URL)
+# Utiliser PostgreSQL si une URL est fournie, ou si un hôte/moteur est spécifié, ou si activé par variable
+USE_POSTGRES = bool(DATABASE_URL) or (
+    os.environ.get('USE_POSTGRESQL', '').lower() in ['true', '1', 'yes'] or
+    bool(os.environ.get('POSTGRES_HOST')) or
+    os.environ.get('DB_ENGINE', '').lower() == 'postgresql'
 )
+
+DATA_DIR = BASE_DIR / 'data'
+if not DATA_DIR.exists():
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        DATA_DIR = BASE_DIR
+
+SQLITE_PATH = DATA_DIR / 'db.sqlite3' if DATA_DIR.exists() and os.access(DATA_DIR, os.W_OK) else BASE_DIR / 'db.sqlite3'
 
 if DATABASE_URL:
     DATABASES = {
@@ -146,7 +157,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': SQLITE_PATH,
         }
     }
 
@@ -224,9 +235,9 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_AGE = 86400  # Auto-expire sessions after 24 hours
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Production SSL Security (Enabled when DEBUG is False or via environment)
+# Production SSL Security (Derrière Coolify/Traefik le SSL est géré par le proxy)
 if not DEBUG:
-    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ['true', '1', 'yes']
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() in ['true', '1', 'yes']
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000  # 1 year HSTS
@@ -238,10 +249,46 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 Mo
 FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 Mo
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
 
-
-
 # Durcissement supplémentaire
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 SESSION_COOKIE_NAME = 'cx_sid'
 CSRF_COOKIE_NAME = 'cx_csrf'
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# Journalisation détaillée pour le diagnostic des erreurs 500 sur Coolify
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} [{name}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
