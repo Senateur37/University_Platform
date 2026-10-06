@@ -42,7 +42,8 @@ def topic_list(request):
             topics = topics.filter(category__slug=category_slug)
         if query:
             topics = topics.filter(Q(title__icontains=query) | Q(content__icontains=query))
-        categories = ForumCategory.objects.all()
+        topics = list(topics)
+        categories = list(ForumCategory.objects.all())
     except Exception:
         topics = []
         categories = []

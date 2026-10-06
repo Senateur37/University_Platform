@@ -57,6 +57,7 @@ def course_list(request):
             courses = courses.filter(category__iexact=category)
         if query:
             courses = courses.filter(Q(title__icontains=query) | Q(code__icontains=query) | Q(description__icontains=query))
+        courses = list(courses)
         categories = [c for c in Course.objects.values_list('category', flat=True).distinct() if c]
     except Exception as e:
         courses = []

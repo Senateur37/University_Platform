@@ -51,7 +51,7 @@ class GradeForm(forms.ModelForm):
 
 def assignment_list(request):
     try:
-        assignments = Assignment.objects.select_related('course', 'course__teacher').order_by('due_date')
+        assignments = list(Assignment.objects.select_related('course', 'course__teacher').order_by('due_date'))
     except Exception:
         assignments = []
     submissions_dict = {}
@@ -59,7 +59,7 @@ def assignment_list(request):
     if request.user.is_authenticated:
         try:
             if request.user.user_type == 'student':
-                user_subs = Submission.objects.filter(student=request.user)
+                user_subs = list(Submission.objects.filter(student=request.user))
                 submissions_dict = {sub.assignment_id: sub for sub in user_subs}
         except Exception:
             submissions_dict = {}

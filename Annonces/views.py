@@ -22,7 +22,7 @@ class AnnouncementForm(forms.ModelForm):
 
 def announcement_list(request):
     try:
-        announcements = Announcement.objects.select_related('course', 'author').order_by('-created_at')
+        announcements = list(Announcement.objects.select_related('course', 'author').order_by('-created_at'))
     except Exception:
         announcements = []
     return render(request, 'announcements/list.html', {'announcements': announcements})
