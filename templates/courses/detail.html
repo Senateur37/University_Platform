@@ -24,7 +24,7 @@
       {% if user.is_teacher_or_admin %}
         <a class="button secondary" href="{% url 'resource_create' course.pk %}">📄 + Ajouter un document</a>
         <a class="button secondary" href="{% url 'course_edit' course.pk %}">✏️ Modifier</a>
-        <a class="button ghost" href="{% url 'course_delete' course.pk %}" style="color:var(--danger);">🗑️ Supprimer</a>
+        <a class="button danger" href="{% url 'course_delete' course.pk %}">🗑️ Supprimer</a>
       {% endif %}
     </div>
   </div>
@@ -60,7 +60,7 @@
               <a href="{% url 'resource_download' course.pk resource.pk %}" class="button primary" style="padding:6px 14px;font-size:0.82rem;">📥 Télécharger</a>
               {% endif %}
               {% if user.is_teacher_or_admin %}
-              <a href="{% url 'resource_delete' course.pk resource.pk %}" class="button ghost" style="padding:6px 10px;font-size:0.8rem;color:var(--danger);" onclick="return confirm('Supprimer cette ressource ?')">Supprimer</a>
+              <a href="{% url 'resource_delete' course.pk resource.pk %}" class="button danger" style="padding:6px 10px;font-size:0.8rem;" onclick="return confirm('Supprimer cette ressource ?')">🗑️ Supprimer</a>
               {% endif %}
             </div>
           </div>

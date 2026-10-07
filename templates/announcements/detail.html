@@ -15,7 +15,7 @@
     {% if user.is_teacher_or_admin %}
     <div class="hero-actions">
       <a class="button secondary" href="{% url 'announcement_edit' announcement.pk %}">✏️ Modifier</a>
-      <a class="button ghost" href="{% url 'announcement_delete' announcement.pk %}" style="color:var(--danger);">🗑️ Supprimer</a>
+      <a class="button danger" href="{% url 'announcement_delete' announcement.pk %}">🗑️ Supprimer</a>
     </div>
     {% endif %}
   </div>

@@ -19,7 +19,7 @@
       {% if user.is_teacher_or_admin %}
         <a class="button primary" href="{% url 'assignment_submissions' assignment.pk %}">📋 Voir les rendus (Copies)</a>
         <a class="button secondary" href="{% url 'assignment_edit' assignment.pk %}">✏️ Modifier</a>
-        <a class="button ghost" href="{% url 'assignment_delete' assignment.pk %}" style="color:var(--danger);">🗑️ Supprimer</a>
+        <a class="button danger" href="{% url 'assignment_delete' assignment.pk %}">🗑️ Supprimer</a>
       {% endif %}
     </div>
   </div>

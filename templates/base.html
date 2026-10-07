@@ -323,6 +323,20 @@
       border-color: rgba(79, 70, 229, 0.18);
     }
 
+    .button.danger {
+      background: #fee2e2;
+      color: #dc2626;
+      border-color: #fca5a5;
+      font-weight: 700;
+    }
+
+    .button.danger:hover {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+      box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -772,6 +786,23 @@
       .status-pill {
         display: none !important;
       }
+
+      .hero-banner {
+        padding: 18px 14px !important;
+      }
+
+      #notifDropdown {
+        position: fixed !important;
+        top: 56px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: 380px !important;
+        margin: 0 auto !important;
+        z-index: 2500 !important;
+        border-radius: 18px !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28) !important;
+      }
     }
   </style>
 </head>
@@ -784,9 +815,17 @@
       <span class="brand-mark">U</span>
       <span>EUTG</span>
     </a>
-    <button type="button" class="hamburger-btn" onclick="toggleMobileSidebar()">
-      <span>☰</span> Menu
-    </button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button type="button" id="mobileNotifBell" onclick="toggleNotifDropdown(event)" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:12px;padding:7px 11px;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:0.92rem;position:relative;" title="Notifications">
+        <span>🔔</span>
+        {% if notifications_unread_count > 0 %}
+        <span style="background:#ef4444;color:white;font-size:0.7rem;font-weight:800;border-radius:999px;padding:2px 6px;line-height:1;">{{ notifications_unread_count }}</span>
+        {% endif %}
+      </button>
+      <button type="button" class="hamburger-btn" onclick="toggleMobileSidebar()">
+        <span>☰</span> Menu
+      </button>
+    </div>
   </div>
 
   <!-- Mobile Sidebar Backdrop Overlay -->
@@ -883,7 +922,7 @@
           <div style="display:flex;align-items:center;gap:12px;">
             <!-- Notification Bell Dropdown -->
             <div style="position:relative;" id="notifDropdownContainer">
-              <button type="button" onclick="toggleNotifDropdown()" style="background:white;border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:0.9rem;position:relative;">
+              <button type="button" onclick="toggleNotifDropdown(event)" style="background:white;border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:0.9rem;position:relative;">
                 <span>🔔</span>
                 {% if notifications_unread_count > 0 %}
                 <span style="background:#ef4444;color:white;font-size:0.72rem;font-weight:800;border-radius:999px;padding:2px 7px;">{{ notifications_unread_count }}</span>
@@ -966,17 +1005,21 @@
         overlay.classList.remove('active');
       }
     }
-    function toggleNotifDropdown() {
+    function toggleNotifDropdown(e) {
+      if (e) e.stopPropagation();
       const dropdown = document.getElementById('notifDropdown');
       if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        dropdown.style.display = (dropdown.style.display === 'none' || dropdown.style.display === '') ? 'block' : 'none';
       }
     }
     document.addEventListener('click', function(e) {
       const container = document.getElementById('notifDropdownContainer');
-      if (container && !container.contains(e.target)) {
-        const dropdown = document.getElementById('notifDropdown');
-        if (dropdown) dropdown.style.display = 'none';
+      const mobileBell = document.getElementById('mobileNotifBell');
+      const dropdown = document.getElementById('notifDropdown');
+      if (dropdown && dropdown.style.display !== 'none') {
+        if ((!container || !container.contains(e.target)) && (!mobileBell || !mobileBell.contains(e.target))) {
+          dropdown.style.display = 'none';
+        }
       }
     });
 

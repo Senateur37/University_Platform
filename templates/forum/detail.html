@@ -36,7 +36,7 @@
         </div>
       </div>
 
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         {% if user.is_teacher_or_admin %}
         <form action="{% url 'topic_toggle_pin' topic.pk %}" method="post" style="display:inline;">
           {% csrf_token %}
@@ -54,7 +54,7 @@
 
         {% if is_author_or_admin %}
         <a href="{% url 'topic_edit' topic.pk %}" class="button secondary" style="padding:6px 12px;font-size:0.8rem;">✏️ Modifier</a>
-        <a href="{% url 'topic_delete' topic.pk %}" class="button ghost" style="padding:6px 12px;font-size:0.8rem;color:var(--danger);">🗑️ Supprimer</a>
+        <a href="{% url 'topic_delete' topic.pk %}" class="button danger" style="padding:6px 12px;font-size:0.8rem;display:inline-flex;align-items:center;gap:4px;">🗑️ Supprimer</a>
         {% endif %}
       </div>
     </div>
@@ -96,7 +96,7 @@
             {% if user == post.author or user.is_teacher_or_admin %}
             <form action="{% url 'post_delete' topic.pk post.pk %}" method="post" onsubmit="return confirm('Supprimer cette réponse ?');" style="display:inline;">
               {% csrf_token %}
-              <button type="submit" class="button ghost" style="padding:4px 8px;font-size:0.75rem;color:var(--danger);">Supprimer</button>
+              <button type="submit" class="button danger" style="padding:4px 9px;font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;">🗑️ Supprimer</button>
             </form>
             {% endif %}
           </div>
