@@ -485,27 +485,34 @@
 
   @media (max-width: 640px) {
     .premium-auth-container {
-      padding: 8px 0;
-      width: 100%;
+      padding: 8px 4px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
     }
     .premium-auth-card {
-      border-radius: 20px;
-      width: 100%;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      margin: 0;
+      border-radius: 20px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+      margin: 0 !important;
+      overflow: hidden !important;
     }
     .auth-form-side {
-      padding: 20px 14px;
-      width: 100%;
-      box-sizing: border-box;
+      padding: 20px 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
     }
     .input-wrapper input,
     .simple-input {
       font-size: 16px !important;
-      padding-top: 11px;
-      padding-bottom: 11px;
-      box-sizing: border-box;
-      max-width: 100%;
+      padding-top: 11px !important;
+      padding-bottom: 11px !important;
+      box-sizing: border-box !important;
+      max-width: 100% !important;
     }
     .demo-buttons {
       grid-template-columns: 1fr;

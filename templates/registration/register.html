@@ -102,26 +102,32 @@
           <div class="role-selector-grid licence-selector-grid">
             <label class="role-card">
               <input type="radio" name="licence" value="L1" {% if form.licence.value == 'L1' or not form.licence.value %}checked{% endif %}>
-              <div class="role-card-content" style="padding:12px 6px;">
-                <span class="role-icon" style="font-size:1.4rem;">📘</span>
-                <span class="role-title" style="font-size:0.88rem;">Licence 1</span>
-                <span style="font-size:0.7rem;color:var(--muted);">1ère Année (L1)</span>
+              <div class="role-card-content licence-card-content">
+                <span class="role-icon">📘</span>
+                <div class="licence-text-wrap">
+                  <span class="role-title">Licence 1</span>
+                  <span class="licence-sub">1ère Année (L1)</span>
+                </div>
               </div>
             </label>
             <label class="role-card">
               <input type="radio" name="licence" value="L2" {% if form.licence.value == 'L2' %}checked{% endif %}>
-              <div class="role-card-content" style="padding:12px 6px;">
-                <span class="role-icon" style="font-size:1.4rem;">📗</span>
-                <span class="role-title" style="font-size:0.88rem;">Licence 2</span>
-                <span style="font-size:0.7rem;color:var(--muted);">2ème Année (L2)</span>
+              <div class="role-card-content licence-card-content">
+                <span class="role-icon">📗</span>
+                <div class="licence-text-wrap">
+                  <span class="role-title">Licence 2</span>
+                  <span class="licence-sub">2ème Année (L2)</span>
+                </div>
               </div>
             </label>
             <label class="role-card">
               <input type="radio" name="licence" value="L3" {% if form.licence.value == 'L3' %}checked{% endif %}>
-              <div class="role-card-content" style="padding:12px 6px;">
-                <span class="role-icon" style="font-size:1.4rem;">📙</span>
-                <span class="role-title" style="font-size:0.88rem;">Licence 3</span>
-                <span style="font-size:0.7rem;color:var(--muted);">3ème Année (L3)</span>
+              <div class="role-card-content licence-card-content">
+                <span class="role-icon">📙</span>
+                <div class="licence-text-wrap">
+                  <span class="role-title">Licence 3</span>
+                  <span class="licence-sub">3ème Année (L3)</span>
+                </div>
               </div>
             </label>
           </div>
@@ -383,12 +389,16 @@
   .role-selector-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .role-card {
     position: relative;
     cursor: pointer;
+    min-width: 0;
+    width: 100%;
   }
 
   .role-card input[type="radio"] {
@@ -401,12 +411,17 @@
   .role-card-content {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 14px;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 10px;
     background: #f8fafc;
     border: 2px solid #e2e8f0;
     border-radius: 14px;
     transition: all 0.2s ease;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
   }
 
   .role-card input[type="radio"]:checked + .role-card-content {
@@ -417,12 +432,46 @@
 
   .role-icon {
     font-size: 1.2rem;
+    flex-shrink: 0;
   }
 
   .role-title {
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--ink);
+  }
+
+  .licence-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .licence-card-content {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 10px 4px !important;
+    gap: 3px !important;
+  }
+
+  .licence-text-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .licence-sub {
+    font-size: 0.68rem;
+    color: var(--muted);
+    line-height: 1.2;
+    white-space: nowrap;
   }
 
   .premium-form {
@@ -576,49 +625,61 @@
 
   @media (max-width: 640px) {
     .premium-auth-container {
-      padding: 8px 0;
-      width: 100%;
+      padding: 8px 4px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      overflow-x: hidden !important;
     }
     .premium-auth-card {
-      border-radius: 20px;
-      width: 100%;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      margin: 0;
+      border-radius: 20px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+      margin: 0 !important;
+      overflow: hidden !important;
     }
     .auth-form-side {
-      padding: 20px 14px;
-      width: 100%;
-      box-sizing: border-box;
+      padding: 20px 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
     }
     .role-selector-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+      width: 100% !important;
     }
     .licence-selector-grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 6px !important;
+      width: 100% !important;
     }
     .role-card-content {
-      padding: 10px 8px;
-      gap: 6px;
+      padding: 10px 6px !important;
+      gap: 6px !important;
+      justify-content: center !important;
     }
     .role-title {
-      font-size: 0.82rem;
+      font-size: 0.84rem !important;
+    }
+    .licence-card-content {
+      padding: 10px 2px !important;
+    }
+    .licence-card-content .role-icon {
+      font-size: 1.3rem !important;
+    }
+    .licence-sub {
+      font-size: 0.65rem !important;
     }
     .input-wrapper input,
     .simple-input {
       font-size: 16px !important;
-      padding-top: 11px;
-      padding-bottom: 11px;
-      box-sizing: border-box;
-      max-width: 100%;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .licence-selector-grid {
-      grid-template-columns: 1fr;
-      gap: 6px;
+      padding-top: 11px !important;
+      padding-bottom: 11px !important;
+      box-sizing: border-box !important;
+      max-width: 100% !important;
     }
   }
 </style>
