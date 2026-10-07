@@ -6,36 +6,71 @@
     <div>
       <div class="eyebrow">Catalogue Universitaire</div>
       <h1>Tous les Cours</h1>
+      {% if user.is_authenticated and user.user_type == 'student' and user.licence %}
+      <div style="margin-top:6px;">
+        <span class="pill primary" style="font-size:0.8rem;padding:4px 12px;display:inline-flex;align-items:center;gap:6px;">
+          🎓 Ma promotion : <strong>{{ user.get_licence_display }}</strong>
+        </span>
+      </div>
+      {% endif %}
     </div>
     {% if user.is_teacher_or_admin %}
     <a class="button primary" href="{% url 'course_create' %}">+ Créer un cours</a>
     {% endif %}
   </div>
 
+  <!-- Filter Licence Tabs -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;">Niveau :</span>
+    <a href="{% url 'course_list' %}{% if selected_category %}?cat={{ selected_category }}{% endif %}" class="filter-tab {% if not selected_licence %}active{% endif %}">Tous les niveaux</a>
+    <a href="{% url 'course_list' %}?licence=L1{% if selected_category %}&cat={{ selected_category }}{% endif %}" class="filter-tab {% if selected_licence == 'L1' %}active{% endif %}">Licence 1 (L1)</a>
+    <a href="{% url 'course_list' %}?licence=L2{% if selected_category %}&cat={{ selected_category }}{% endif %}" class="filter-tab {% if selected_licence == 'L2' %}active{% endif %}">Licence 2 (L2)</a>
+    <a href="{% url 'course_list' %}?licence=L3{% if selected_category %}&cat={{ selected_category }}{% endif %}" class="filter-tab {% if selected_licence == 'L3' %}active{% endif %}">Licence 3 (L3)</a>
+  </div>
+
   <!-- Filter Category Tabs -->
   <div class="filter-bar">
-    <a href="{% url 'course_list' %}" class="filter-tab {% if not selected_category %}active{% endif %}">Toutes les filières</a>
+    <a href="{% url 'course_list' %}{% if selected_licence %}?licence={{ selected_licence }}{% endif %}" class="filter-tab {% if not selected_category %}active{% endif %}">Toutes les filières</a>
     {% for cat in categories %}
-    <a href="{% url 'course_list' %}?cat={{ cat }}" class="filter-tab {% if selected_category == cat %}active{% endif %}">{{ cat }}</a>
+    <a href="{% url 'course_list' %}?cat={{ cat }}{% if selected_licence %}&licence={{ selected_licence }}{% endif %}" class="filter-tab {% if selected_category == cat %}active{% endif %}">{{ cat }}</a>
     {% endfor %}
   </div>
 
   <div class="grid">
     {% for course in courses %}
     <article class="feature-card">
-      <div class="card-top">
-        <span class="course-badge">{{ course.code }}</span>
-        <span class="mini-pill">{{ course.category }}</span>
+      <div class="card-top" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="course-badge">{{ course.code }}</span>
+          <span class="mini-pill">{{ course.category }}</span>
+        </div>
+        <span class="mini-pill" style="{% if course.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif course.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif course.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;">
+          🎓 {{ course.get_licence_display }}
+        </span>
       </div>
       <h2>{{ course.title }}</h2>
       <p class="muted">Professeur : {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
+
+      {% if user.is_authenticated and user.user_type == 'student' and not course.has_user_access %}
+      <div style="background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.2);color:#b91c1c;padding:6px 10px;border-radius:10px;font-size:0.78rem;margin:8px 0;display:flex;align-items:center;gap:6px;">
+        <span>🔒</span>
+        <span>Consultation seule (Réservé {{ course.get_licence_display }})</span>
+      </div>
+      {% endif %}
+
       <p style="font-size:0.9rem;line-height:1.6;">{{ course.description|default:'Aucune description fournie.'|truncatewords:22 }}</p>
       <div style="margin-top:auto;display:flex;gap:8px;align-items:center;">
-        <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1;">Voir le cours</a>
+        <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1;">
+          {% if user.is_authenticated and user.user_type == 'student' and not course.has_user_access %}
+          Consulter (Aperçu)
+          {% else %}
+          Voir le cours
+          {% endif %}
+        </a>
         {% if user.is_teacher_or_admin %}
         <a class="button secondary" href="{% url 'resource_create' course.pk %}" title="Ajouter un document" style="padding:8px 12px;">📄</a>
         <a class="button secondary" href="{% url 'course_edit' course.pk %}" title="Modifier le cours" style="padding:8px 12px;">✏️</a>
-        <a class="button ghost" href="{% url 'course_delete' course.pk %}" title="Supprimer le cours" style="padding:8px 12px;color:var(--danger);">🗑️</a>
+        <a class="button danger" href="{% url 'course_delete' course.pk %}" title="Supprimer le cours" style="padding:8px 12px;">🗑️</a>
         {% endif %}
       </div>
     </article>

@@ -353,6 +353,65 @@ class ComprehensivePlatformTests(TestCase):
         with self.assertRaises(ValidationError):
             validate_secure_file_extension(svg_file)
 
+    def test_student_registration_with_licence(self):
+        response = self.client.post(reverse('register'), {
+            'username': 'new_l1_student',
+            'email': 'l1@univ.fr',
+            'first_name': 'Jean',
+            'last_name': 'Dupont',
+            'user_type': 'student',
+            'licence': 'L1',
+            'password': 'SecurePassword123!',
+            'password_confirmation': 'SecurePassword123!',
+        })
+        self.assertEqual(response.status_code, 302)
+        created_user = User.objects.get(username='new_l1_student')
+        self.assertEqual(created_user.licence, 'L1')
+        self.assertEqual(created_user.user_type, 'student')
+
+    def test_licence_access_restrictions(self):
+        # Create an L1 student and an L2 student
+        student_l1 = User.objects.create_user(username='stud_l1', password='password123', user_type='student', licence='L1')
+        student_l2 = User.objects.create_user(username='stud_l2', password='password123', user_type='student', licence='L2')
+
+        # Course strictly for L2
+        course_l2 = Course.objects.create(
+            title='Django Avance L2',
+            code='INF202',
+            licence='L2',
+            teacher=self.teacher
+        )
+        res_l2 = CourseResource.objects.create(
+            course=course_l2,
+            title='Support L2'
+        )
+
+        # 1. Student L1 can VIEW the course detail page (consultation)
+        self.client.force_login(student_l1)
+        response = self.client.get(reverse('course_detail', args=[course_l2.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Mode Consultation Seule')
+
+        # 2. Student L1 CANNOT enroll in course L2
+        response = self.client.get(reverse('enroll', args=[course_l2.pk]))
+        self.assertRedirects(response, reverse('course_detail', args=[course_l2.pk]))
+        self.assertFalse(course_l2.students.filter(pk=student_l1.pk).exists())
+
+        # 3. Student L1 CANNOT download L2 resources
+        response = self.client.get(reverse('resource_download', args=[course_l2.pk, res_l2.pk]))
+        self.assertRedirects(response, reverse('course_detail', args=[course_l2.pk]))
+
+        # 4. Student L2 CAN enroll in course L2
+        self.client.force_login(student_l2)
+        response = self.client.get(reverse('enroll', args=[course_l2.pk]))
+        self.assertRedirects(response, reverse('course_detail', args=[course_l2.pk]))
+        self.assertTrue(course_l2.students.filter(pk=student_l2.pk).exists())
+
+        # 5. Teacher and Admin have full access
+        self.assertTrue(course_l2.user_has_access(self.teacher))
+        self.assertTrue(course_l2.user_has_access(self.admin))
+
+
 
 
 

@@ -5,19 +5,33 @@
   <!-- Course Header Banner -->
   <div class="dashboard-hero">
     <div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
         <span class="course-badge" style="background:var(--primary);color:white;">{{ course.code }}</span>
         <span class="pill info">{{ course.category }}</span>
+        <span class="pill primary" style="font-weight:700;">🎓 {{ course.get_licence_display }}</span>
       </div>
       <h1>{{ course.title }}</h1>
       <p class="muted">Enseignant responsable : <strong>{{ course.teacher.get_full_name|default:course.teacher.username }}</strong> · {{ course.students.count }} étudiant(s) inscrit(s)</p>
+
+      {% if user.is_authenticated and user.user_type == 'student' and not has_access %}
+      <div style="margin-top:12px;padding:12px 16px;background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.25);border-radius:14px;color:#991b1b;font-size:0.9rem;display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:1.2rem;line-height:1;">🔒</span>
+        <div>
+          <strong>Mode Consultation Seule :</strong> Ce cours est réservé aux étudiants de <strong>{{ course.get_licence_display }}</strong>. Votre niveau actuel est <strong>{{ user.get_licence_display|default:'Non spécifié' }}</strong>. Vous pouvez consulter les informations du cours mais vous n'avez pas le niveau d'accès requis pour vous inscrire, télécharger les documents ou soumettre des devoirs.
+        </div>
+      </div>
+      {% endif %}
     </div>
     <div class="hero-actions">
       {% if user.user_type == 'student' %}
         {% if is_enrolled %}
           <a class="button secondary" href="{% url 'unenroll' course.pk %}" onclick="return confirm('Se désinscrire de ce cours ?')">Se désinscrire</a>
-        {% else %}
+        {% elif has_access %}
           <a class="button primary" href="{% url 'enroll' course.pk %}">S'inscrire à ce cours</a>
+        {% else %}
+          <button type="button" class="button secondary" disabled style="opacity:0.6;cursor:not-allowed;" title="Réservé aux étudiants de {{ course.get_licence_display }}">
+            🔒 Inscription réservée aux {{ course.get_licence_display }}
+          </button>
         {% endif %}
       {% endif %}
 
@@ -57,7 +71,11 @@
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
               {% if resource.file %}
-              <a href="{% url 'resource_download' course.pk resource.pk %}" class="button primary" style="padding:6px 14px;font-size:0.82rem;">📥 Télécharger</a>
+                {% if has_access %}
+                <a href="{% url 'resource_download' course.pk resource.pk %}" class="button primary" style="padding:6px 14px;font-size:0.82rem;">📥 Télécharger</a>
+                {% else %}
+                <span class="muted" style="font-size:0.78rem;padding:6px 12px;background:#f1f5f9;border-radius:10px;border:1px solid var(--line);">🔒 Réservé aux {{ course.get_licence_display }}</span>
+                {% endif %}
               {% endif %}
               {% if user.is_teacher_or_admin %}
               <a href="{% url 'resource_delete' course.pk resource.pk %}" class="button danger" style="padding:6px 10px;font-size:0.8rem;" onclick="return confirm('Supprimer cette ressource ?')">🗑️ Supprimer</a>

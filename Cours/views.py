@@ -23,11 +23,12 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('title', 'code', 'category', 'description', 'teacher')
+        fields = ('title', 'code', 'category', 'licence', 'description', 'teacher')
         labels = {
             'title': 'Titre du cours',
             'code': 'Code du cours (ex: INFO101)',
             'category': 'Filière / Catégorie',
+            'licence': 'Niveau / Licence requis',
             'description': 'Description du cours',
             'teacher': 'Enseignant responsable',
         }
@@ -50,14 +51,22 @@ class ResourceForm(forms.ModelForm):
 def course_list(request):
     category = request.GET.get('cat', '').strip()
     query = request.GET.get('q', '').strip()
+    selected_licence = request.GET.get('licence', '').strip()
     
     try:
         courses = Course.objects.select_related('teacher').all()
         if category:
             courses = courses.filter(category__iexact=category)
+        if selected_licence:
+            if selected_licence == 'ALL':
+                courses = courses.filter(licence='ALL')
+            else:
+                courses = courses.filter(Q(licence=selected_licence) | Q(licence='ALL'))
         if query:
             courses = courses.filter(Q(title__icontains=query) | Q(code__icontains=query) | Q(description__icontains=query))
         courses = list(courses)
+        for c in courses:
+            c.has_user_access = c.user_has_access(request.user) if request.user.is_authenticated else False
         categories = [c for c in Course.objects.values_list('category', flat=True).distinct() if c]
     except Exception as e:
         courses = []
@@ -67,6 +76,8 @@ def course_list(request):
         'courses': courses,
         'categories': categories,
         'selected_category': category,
+        'selected_licence': selected_licence,
+        'licence_choices': Course.LICENCE_CHOICES,
         'search_query': query,
     })
 
@@ -77,6 +88,8 @@ def course_detail(request, pk):
     announcements = course.announcements.select_related('author').order_by('-created_at')
     
     is_enrolled = False
+    has_access = course.user_has_access(request.user) if request.user.is_authenticated else False
+
     if request.user.is_authenticated and request.user.user_type == 'student':
         is_enrolled = course.students.filter(pk=request.user.pk).exists()
 
@@ -87,6 +100,7 @@ def course_detail(request, pk):
         'assignments': assignments,
         'announcements': announcements,
         'is_enrolled': is_enrolled,
+        'has_access': has_access,
         'is_owner': is_owner,
     })
 
@@ -184,6 +198,13 @@ def course_delete(request, pk):
 @user_type_required('student')
 def enroll(request, pk):
     course = get_object_or_404(Course, pk=pk)
+    if not course.user_has_access(request.user):
+        messages.error(
+            request,
+            f"Accès refusé : Ce cours est réservé aux étudiants de {course.get_licence_display()}. "
+            f"Votre niveau actuel ({request.user.get_licence_display() or 'non spécifié'}) ne vous permet pas de vous y inscrire."
+        )
+        return redirect('course_detail', pk=course.pk)
     course.students.add(request.user)
     messages.success(request, f'Vous êtes maintenant inscrit au cours "{course.title}".')
     return redirect('course_detail', course.pk)
@@ -234,6 +255,13 @@ def resource_delete(request, pk, resource_pk):
 def resource_download(request, pk, resource_pk):
     course = get_object_or_404(Course, pk=pk)
     resource = get_object_or_404(CourseResource, pk=resource_pk, course=course)
+
+    if request.user.user_type == 'student' and not course.user_has_access(request.user):
+        messages.error(
+            request,
+            f"Accès refusé : Le téléchargement des documents de ce cours est réservé aux étudiants de {course.get_licence_display()}."
+        )
+        return redirect('course_detail', pk=pk)
 
     if not resource.file:
         messages.error(request, "Aucun fichier disponible pour ce document.")

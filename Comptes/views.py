@@ -38,7 +38,7 @@ class RegistrationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'filiere', 'user_type', 'bio')
+        fields = ('username', 'email', 'first_name', 'last_name', 'filiere', 'user_type', 'licence', 'bio')
         labels = {
             'username': "Nom d'utilisateur",
             'email': 'Adresse email',
@@ -46,6 +46,7 @@ class RegistrationForm(forms.ModelForm):
             'last_name': 'Nom',
             'filiere': 'Filière / Département',
             'user_type': 'Rôle sur le campus',
+            'licence': 'Niveau / Licence',
             'bio': 'Présentation / Bio',
         }
 
@@ -78,6 +79,16 @@ class RegistrationForm(forms.ModelForm):
                     validate_password(pwd, temp_user)
                 except forms.ValidationError as error:
                     self.add_error('password', error)
+
+        # Gestion de la licence selon le type d'utilisateur
+        user_type = cleaned.get('user_type')
+        licence = cleaned.get('licence')
+        if user_type == 'student':
+            if not licence:
+                cleaned['licence'] = 'L1'
+        else:
+            cleaned['licence'] = None
+
         return cleaned
 
     def save(self, commit=True):
@@ -93,12 +104,13 @@ class RegistrationForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'filiere', 'bio', 'avatar')
+        fields = ('first_name', 'last_name', 'email', 'filiere', 'licence', 'bio', 'avatar')
         labels = {
             'first_name': 'Prénom',
             'last_name': 'Nom',
             'email': 'Adresse email',
             'filiere': 'Filière / Département',
+            'licence': 'Niveau / Licence',
             'bio': 'Biographie',
             'avatar': 'Photo de profil (Optionnel)',
         }
@@ -109,13 +121,14 @@ class AdminUserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'user_type', 'filiere', 'is_validated', 'bio')
+        fields = ('username', 'email', 'first_name', 'last_name', 'user_type', 'licence', 'filiere', 'is_validated', 'bio')
         labels = {
             'username': "Nom d'utilisateur",
             'email': 'Adresse email',
             'first_name': 'Prénom',
             'last_name': 'Nom',
             'user_type': 'Rôle sur le campus',
+            'licence': 'Niveau / Licence',
             'filiere': 'Filière / Département',
             'is_validated': 'Compte validé / approuvé',
             'bio': 'Biographie',
@@ -179,6 +192,9 @@ def register(request):
     if form.is_valid():
         user = form.save()
         login(request, user)
+        if user.user_type == 'student' and user.licence:
+            messages.success(request, f'Compte créé avec succès ! Bienvenue dans votre promotion {user.get_licence_display()}.')
+            return redirect('dashboard')
         messages.success(request, 'Votre compte a été créé avec succès.')
         return redirect('dashboard')
     return render(request, 'registration/register.html', {'form': form})

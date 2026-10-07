@@ -30,7 +30,12 @@
             <div class="muted" style="font-size:0.78rem;">{{ u.email }}</div>
           </td>
           <td style="padding:12px 14px;">{{ u.get_full_name|default:'—' }}</td>
-          <td style="padding:12px 14px;">{{ u.filiere|default:'Non spécifiée' }}</td>
+          <td style="padding:12px 14px;">
+            <div>{{ u.filiere|default:'Non spécifiée' }}</div>
+            {% if u.licence %}
+            <span class="pill primary" style="font-size:0.7rem;padding:2px 8px;margin-top:4px;display:inline-block;">🎓 {{ u.get_licence_display }}</span>
+            {% endif %}
+          </td>
           <td style="padding:12px 14px;">
             <form method="post" style="display:inline-flex;gap:6px;">
               {% csrf_token %}

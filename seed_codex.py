@@ -71,10 +71,12 @@ def seed():
             "first_name": "Alice",
             "last_name": "Lefebvre",
             "user_type": "student",
+            "licence": "L2",
             "is_validated": True,
             "filiere": "Informatique L2",
         }
     )
+    student1.licence = "L2"
     student1.set_password("etudiant123")
     student1.save()
 
@@ -85,10 +87,12 @@ def seed():
             "first_name": "Bob",
             "last_name": "Rousseau",
             "user_type": "student",
+            "licence": "L1",
             "is_validated": True,
-            "filiere": "Informatique L2",
+            "filiere": "Informatique L1",
         }
     )
+    student2.licence = "L1"
     student2.set_password("etudiant123")
     student2.save()
 
@@ -100,30 +104,52 @@ def seed():
         defaults={
             "title": "Introduction a l'Algorithmique et Python",
             "category": "Informatique",
+            "licence": "L1",
             "description": "Apprenez les bases de la programmation en Python, la pensee algorithmique et la structure des donnees.",
             "teacher": teacher1,
         }
     )
+    c1.licence = "L1"
+    c1.save()
 
     c2, _ = Course.objects.get_or_create(
         code="INFO202",
         defaults={
             "title": "Developpement Web Avance avec Django",
             "category": "Informatique",
+            "licence": "L2",
             "description": "Conception d'applications web robustes avec le framework Django, architecture MVT, bases de donnees et formulaires.",
             "teacher": teacher1,
         }
     )
+    c2.licence = "L2"
+    c2.save()
 
     c3, _ = Course.objects.get_or_create(
         code="MATH101",
         defaults={
             "title": "Algebre Lineaire et Analyse",
             "category": "Mathematiques",
+            "licence": "L1",
             "description": "Matrices, espaces vectoriels, derivees et integrales appliquees a l'informatique et aux sciences.",
             "teacher": teacher2,
         }
     )
+    c3.licence = "L1"
+    c3.save()
+
+    c4, _ = Course.objects.get_or_create(
+        code="INFO303",
+        defaults={
+            "title": "Architecture Logicielle et Microservices",
+            "category": "Informatique",
+            "licence": "L3",
+            "description": "Patrons de conception avances, architectures distribuees, conteneurisation Docker et APIs REST/GraphQL.",
+            "teacher": teacher1,
+        }
+    )
+    c4.licence = "L3"
+    c4.save()
 
     # Inscription des étudiants
     c1.students.add(student1, student2)

@@ -10,8 +10,14 @@ class User(AbstractUser):
         ("teacher", "Enseignant"),
         ("admin", "Administrateur"),
     ]
+    LICENCE_CHOICES = [
+        ("L1", "Licence 1 (L1)"),
+        ("L2", "Licence 2 (L2)"),
+        ("L3", "Licence 3 (L3)"),
+    ]
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
     is_validated = models.BooleanField(default=True)  # validation manuelle ou automatique
+    licence = models.CharField(max_length=10, choices=LICENCE_CHOICES, blank=True, null=True, verbose_name="Niveau / Licence")
     bio = models.TextField(blank=True, verbose_name="Biographie")
     filiere = models.CharField(max_length=100, blank=True, verbose_name="Filière / Département")
     avatar = models.FileField(upload_to="avatars/", null=True, blank=True, validators=[validate_avatar_image, validate_file_size])

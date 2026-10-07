@@ -4,12 +4,22 @@
 {% block content %}
 <section class="dashboard-hero">
   <div>
-    <div class="eyebrow">Campus Pro EUTG · {{ user.get_user_type_display }}</div>
+    <div class="eyebrow" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span>Campus Pro EUTG · {{ user.get_user_type_display }}</span>
+      {% if user.licence %}
+      <span class="pill primary" style="font-size:0.75rem;padding:2px 8px;text-transform:none;">🎓 {{ user.get_licence_display }}</span>
+      {% endif %}
+    </div>
     <h1>Bonjour {{ user.first_name|default:user.username }}.</h1>
     <p class="muted">Votre espace central pour suivre vos cours, vos missions et les actualités universitaires.</p>
   </div>
   <div class="hero-actions">
+    {% if user.user_type == 'student' and user.licence %}
+    <a class="button primary" href="{% url 'course_list' %}?licence={{ user.licence }}">Mes cours {{ user.licence }}</a>
+    <a class="button secondary" href="{% url 'course_list' %}">Tous les cours</a>
+    {% else %}
     <a class="button primary" href="{% url 'course_list' %}">Explorer les cours</a>
+    {% endif %}
     <a class="button secondary" href="{% url 'assignment_list' %}">Voir les missions</a>
     {% if user.is_teacher_or_admin %}
     <a class="button secondary" href="{% url 'course_create' %}">+ Nouveau cours</a>

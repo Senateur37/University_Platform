@@ -166,6 +166,10 @@ def assignment_delete(request, pk):
 @user_type_required('student')
 def submit_assignment(request, pk):
     assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
+    if not assignment.course.user_has_access(request.user):
+        messages.error(request, f"Accès refusé : cette mission est réservée aux étudiants de {assignment.course.get_licence_display()}.")
+        return redirect('assignment_detail', pk=assignment.pk)
+
     if not assignment.course.students.filter(pk=request.user.pk).exists():
         messages.error(request, "Accès refusé : vous devez être inscrit au cours associé pour rendre un devoir.")
         return redirect('assignment_detail', pk=assignment.pk)
