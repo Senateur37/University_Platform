@@ -19,10 +19,10 @@
     <button type="submit" class="button secondary" style="white-space:nowrap;">Rechercher</button>
   </form>
 
-  <div class="filter-pills" style="margin-bottom:24px;display:flex;flex-wrap:wrap;gap:8px;width:100%;">
-    <a class="pill {% if not selected_category %}active{% endif %}" href="{% url 'topic_list' %}{% if query %}?q={{ query }}{% endif %}">Tout voir</a>
+  <div class="filter-bar" style="margin-bottom:20px;">
+    <a class="filter-tab {% if not selected_category %}active{% endif %}" href="{% url 'topic_list' %}{% if query %}?q={{ query }}{% endif %}">Tout voir</a>
     {% for cat in categories %}
-    <a class="pill {% if selected_category == cat.slug %}active{% endif %}" href="{% url 'topic_list' %}?cat={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}">
+    <a class="filter-tab {% if selected_category == cat.slug %}active{% endif %}" href="{% url 'topic_list' %}?cat={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}">
       {{ cat.icon }} {{ cat.name }}
     </a>
     {% endfor %}

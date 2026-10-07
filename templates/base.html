@@ -698,9 +698,58 @@
         display: none;
       }
 
+      .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 6px 2px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+      }
+      .filter-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .filter-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 15px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid var(--line);
+        white-space: nowrap;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+      }
+      .filter-tab:hover,
+      .filter-tab.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.22);
+      }
+
       .sidebar-overlay.active {
         display: block !important;
         opacity: 1 !important;
+      }
+
+      h1 {
+        font-size: clamp(1.65rem, 5vw, 2.3rem) !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.03em !important;
+      }
+
+      h2 {
+        font-size: 1.22rem !important;
       }
 
       .dashboard-layout {
@@ -767,6 +816,55 @@
         border-radius: 18px !important;
       }
 
+      .course-item,
+      .assignment-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        padding: 14px 12px !important;
+      }
+
+      .course-item > div:last-child,
+      .assignment-item > div:last-child {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        justify-content: flex-start !important;
+      }
+
+      .course-item > div:last-child .button,
+      .assignment-item > div:last-child .button {
+        flex: 1 1 auto !important;
+        min-width: 90px !important;
+        text-align: center !important;
+        justify-content: center !important;
+      }
+
+      .panel-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+
+      .panel-header .button,
+      .panel-header a.button {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+      }
+
+      .announce-card {
+        padding: 16px 14px !important;
+        border-radius: 18px !important;
+      }
+
+      .announce-top {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+
       .public-topbar {
         padding: 8px 12px;
         gap: 6px;
@@ -791,6 +889,17 @@
         padding: 18px 14px !important;
       }
 
+      /* Empêcher le zoom forcé indésirable sur iOS Safari */
+      input, select, textarea {
+        font-size: 16px !important;
+      }
+
+      .table-responsive {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
       #notifDropdown {
         position: fixed !important;
         top: 56px !important;
@@ -802,6 +911,35 @@
         z-index: 2500 !important;
         border-radius: 18px !important;
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28) !important;
+      }
+    }
+
+    /* 3. EXTRA SMALL MOBILE PHONES (<= 480px) */
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px 8px 30px !important;
+      }
+
+      .mobile-header {
+        padding: 8px 10px !important;
+      }
+
+      .dashboard-hero {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+      }
+
+      .stat-card {
+        padding: 14px 12px !important;
+      }
+
+      .stat-number {
+        font-size: 1.8rem !important;
+      }
+
+      .button {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.88rem !important;
       }
     }
   </style>

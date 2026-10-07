@@ -20,8 +20,8 @@
   </div>
 
   <!-- Filter Licence Tabs -->
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;">
-    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;">Niveau :</span>
+  <div class="filter-bar" style="margin-bottom:8px;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;flex-shrink:0;">Niveau :</span>
     <a href="{% url 'course_list' %}{% if selected_category %}?cat={{ selected_category }}{% endif %}" class="filter-tab {% if not selected_licence %}active{% endif %}">Tous les niveaux</a>
     <a href="{% url 'course_list' %}?licence=L1{% if selected_category %}&cat={{ selected_category }}{% endif %}" class="filter-tab {% if selected_licence == 'L1' %}active{% endif %}">Licence 1 (L1)</a>
     <a href="{% url 'course_list' %}?licence=L2{% if selected_category %}&cat={{ selected_category }}{% endif %}" class="filter-tab {% if selected_licence == 'L2' %}active{% endif %}">Licence 2 (L2)</a>
@@ -59,8 +59,8 @@
       {% endif %}
 
       <p style="font-size:0.9rem;line-height:1.6;">{{ course.description|default:'Aucune description fournie.'|truncatewords:22 }}</p>
-      <div style="margin-top:auto;display:flex;gap:8px;align-items:center;">
-        <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1;">
+      <div style="margin-top:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1 1 auto;min-width:130px;text-align:center;justify-content:center;">
           {% if user.is_authenticated and user.user_type == 'student' and not course.has_user_access %}
           Consulter (Aperçu)
           {% else %}
@@ -68,9 +68,11 @@
           {% endif %}
         </a>
         {% if user.is_teacher_or_admin %}
-        <a class="button secondary" href="{% url 'resource_create' course.pk %}" title="Ajouter un document" style="padding:8px 12px;">📄</a>
-        <a class="button secondary" href="{% url 'course_edit' course.pk %}" title="Modifier le cours" style="padding:8px 12px;">✏️</a>
-        <a class="button danger" href="{% url 'course_delete' course.pk %}" title="Supprimer le cours" style="padding:8px 12px;">🗑️</a>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <a class="button secondary" href="{% url 'resource_create' course.pk %}" title="Ajouter un document" style="padding:8px 12px;">📄</a>
+          <a class="button secondary" href="{% url 'course_edit' course.pk %}" title="Modifier le cours" style="padding:8px 12px;">✏️</a>
+          <a class="button danger" href="{% url 'course_delete' course.pk %}" title="Supprimer le cours" style="padding:8px 12px;">🗑️</a>
+        </div>
         {% endif %}
       </div>
     </article>

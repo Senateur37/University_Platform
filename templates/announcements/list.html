@@ -18,8 +18,8 @@
   </div>
 
   <!-- Filter Licence Tabs -->
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;">
-    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;">Filtrer par Licence :</span>
+  <div class="filter-bar" style="margin-bottom:12px;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;flex-shrink:0;">Filtrer par Licence :</span>
     <a href="{% url 'announcement_list' %}" class="filter-tab {% if not selected_licence %}active{% endif %}">Toutes</a>
     <a href="{% url 'announcement_list' %}?licence=L1" class="filter-tab {% if selected_licence == 'L1' %}active{% endif %}">Licence 1 (L1)</a>
     <a href="{% url 'announcement_list' %}?licence=L2" class="filter-tab {% if selected_licence == 'L2' %}active{% endif %}">Licence 2 (L2)</a>

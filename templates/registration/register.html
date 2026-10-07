@@ -99,7 +99,7 @@
         <!-- Licence Selection for Students -->
         <div class="input-group" id="licenceSelectionGroup">
           <label>Niveau de Licence / Année universitaire</label>
-          <div class="role-selector-grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
+          <div class="role-selector-grid licence-selector-grid">
             <label class="role-card">
               <input type="radio" name="licence" value="L1" {% if form.licence.value == 'L1' or not form.licence.value %}checked{% endif %}>
               <div class="role-card-content" style="padding:12px 6px;">
@@ -594,6 +594,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
+    .licence-selector-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
     .role-card-content {
       padding: 10px 8px;
       gap: 6px;
@@ -603,11 +607,18 @@
     }
     .input-wrapper input,
     .simple-input {
-      font-size: 0.88rem;
-      padding-top: 10px;
-      padding-bottom: 10px;
+      font-size: 16px !important;
+      padding-top: 11px;
+      padding-bottom: 11px;
       box-sizing: border-box;
       max-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .licence-selector-grid {
+      grid-template-columns: 1fr;
+      gap: 6px;
     }
   }
 </style>

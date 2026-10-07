@@ -74,12 +74,14 @@
             <h3><a href="{% url 'course_detail' course.pk %}" style="color:inherit;">{{ course.title }}</a></h3>
             <p class="muted" style="font-size:0.85rem;">Prof. {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
           </div>
-          <div style="margin-top:auto;display:flex;gap:6px;align-items:center;">
-            <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1;padding:8px 12px;font-size:0.85rem;">Accéder au cours</a>
+          <div style="margin-top:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <a class="button secondary" href="{% url 'course_detail' course.pk %}" style="flex:1 1 auto;min-width:120px;padding:8px 12px;font-size:0.85rem;text-align:center;justify-content:center;">Accéder au cours</a>
             {% if user.is_teacher_or_admin %}
-            <a class="button secondary" href="{% url 'resource_create' course.pk %}" style="padding:8px 10px;font-size:0.85rem;" title="Ajouter un document">📄</a>
-            <a class="button secondary" href="{% url 'course_edit' course.pk %}" style="padding:8px 10px;font-size:0.85rem;" title="Modifier">✏️</a>
-            <a class="button ghost" href="{% url 'course_delete' course.pk %}" style="padding:8px 10px;font-size:0.85rem;color:var(--danger);" title="Supprimer">🗑️</a>
+            <div style="display:flex;gap:4px;">
+              <a class="button secondary" href="{% url 'resource_create' course.pk %}" style="padding:8px 10px;font-size:0.85rem;" title="Ajouter un document">📄</a>
+              <a class="button secondary" href="{% url 'course_edit' course.pk %}" style="padding:8px 10px;font-size:0.85rem;" title="Modifier">✏️</a>
+              <a class="button ghost" href="{% url 'course_delete' course.pk %}" style="padding:8px 10px;font-size:0.85rem;color:var(--danger);" title="Supprimer">🗑️</a>
+            </div>
             {% endif %}
           </div>
         </article>
