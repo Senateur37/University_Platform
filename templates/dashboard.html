@@ -147,8 +147,13 @@
       <div class="panel-list">
         {% for announce in announcements %}
         <div style="padding-bottom:12px;border-bottom:1px solid var(--line);">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <span class="pill info" style="font-size:0.68rem;padding:3px 8px;">{{ announce.course.code|default:'Campus' }}</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px;">
+            <div style="display:flex;gap:4px;align-items:center;">
+              <span class="pill info" style="font-size:0.68rem;padding:3px 8px;">{{ announce.course.code|default:'Campus' }}</span>
+              <span class="mini-pill" style="{% if announce.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif announce.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif announce.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-size:0.68rem;padding:2px 6px;border-radius:999px;font-weight:700;">
+                🎓 {{ announce.licence|default:'ALL' }}
+              </span>
+            </div>
             <div style="display:flex;gap:4px;align-items:center;">
               <span class="muted" style="font-size:0.75rem;">{{ announce.created_at|date:'d/m H:i' }}</span>
               {% if user.is_teacher_or_admin %}

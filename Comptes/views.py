@@ -208,7 +208,10 @@ def dashboard(request):
         courses = user.enrolled_courses.select_related('teacher').all()
         assignments = Assignment.objects.filter(course__in=courses).select_related('course').order_by('due_date')
         submissions = {sub.assignment_id: sub for sub in Submission.objects.filter(student=user)}
-        announcements = Announcement.objects.filter(Q(is_global=True) | Q(course__in=courses)).select_related('course', 'author').order_by('-created_at')[:5]
+        announcement_filter = Q(course__in=courses) | Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True)
+        if user.licence:
+            announcement_filter |= Q(licence=user.licence)
+        announcements = Announcement.objects.filter(announcement_filter).select_related('course', 'author').order_by('-created_at')[:5]
         
         avg_grade = Submission.objects.filter(student=user, grade__isnull=False).aggregate(Avg('grade'))['grade__avg']
         stats = {

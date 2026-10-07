@@ -411,6 +411,55 @@ class ComprehensivePlatformTests(TestCase):
         self.assertTrue(course_l2.user_has_access(self.teacher))
         self.assertTrue(course_l2.user_has_access(self.admin))
 
+    def test_teacher_creates_course_with_licence(self):
+        self.client.force_login(self.teacher)
+        response = self.client.post(reverse('course_create'), {
+            'title': 'Bases de Données L3',
+            'code': 'BDD301',
+            'category': 'Informatique',
+            'licence': 'L3',
+            'description': 'Cours destiné aux étudiants de Licence 3',
+        })
+        self.assertEqual(response.status_code, 302)
+        course = Course.objects.get(code='BDD301')
+        self.assertEqual(course.licence, 'L3')
+        self.assertEqual(course.teacher, self.teacher)
+
+    def test_announcement_licence_targeting_and_notifications(self):
+        from Comptes.models import Notification
+        # Ensure students for L1 and L2 exist
+        s_l1 = User.objects.create_user(username='ann_student_l1', password='password123', user_type='student', licence='L1')
+        s_l2 = User.objects.create_user(username='ann_student_l2', password='password123', user_type='student', licence='L2')
+
+        # Admin creates announcement targeted specifically to L1
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('announcement_create'), {
+            'title': 'Rentrée Licence 1',
+            'content': 'Réunion de rentrée amphi A pour les L1 uniquement.',
+            'licence': 'L1',
+        })
+        self.assertEqual(response.status_code, 302)
+        ann_l1 = Announcement.objects.get(title='Rentrée Licence 1')
+        self.assertEqual(ann_l1.licence, 'L1')
+
+        # Verify notifications: student L1 got notification, student L2 did NOT
+        self.assertTrue(Notification.objects.filter(recipient=s_l1, title__icontains='Rentrée Licence 1').exists())
+        self.assertFalse(Notification.objects.filter(recipient=s_l2, title__icontains='Rentrée Licence 1').exists())
+
+        # Verify listing: student L1 sees ann_l1, student L2 does NOT see ann_l1 in their default list
+        self.client.force_login(s_l1)
+        resp_l1 = self.client.get(reverse('announcement_list'))
+        self.assertContains(resp_l1, 'Rentrée Licence 1')
+
+        self.client.force_login(s_l2)
+        resp_l2 = self.client.get(reverse('announcement_list'))
+        self.assertNotContains(resp_l2, 'Rentrée Licence 1')
+
+        # Admin and Teacher see all announcements
+        self.client.force_login(self.teacher)
+        resp_t = self.client.get(reverse('announcement_list'))
+        self.assertContains(resp_t, 'Rentrée Licence 1')
+
 
 
 

@@ -4,12 +4,21 @@
 <section class="announce-detail-shell">
   <div class="dashboard-hero">
     <div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
         <span class="announce-tag">{{ announcement.course.code|default:'Annonce Campus' }}</span>
+        <span class="mini-pill" style="{% if announcement.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif announcement.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif announcement.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;padding:4px 10px;border-radius:999px;font-size:0.75rem;">
+          🎓 {{ announcement.get_licence_display|default:'Toutes les Licences' }}
+        </span>
         {% if announcement.is_global %}<span class="pill info">Annonce globale</span>{% endif %}
       </div>
       <h1>{{ announcement.title }}</h1>
       <p class="muted">Publié par <strong>{{ announcement.author.get_full_name|default:announcement.author.username }}</strong> le {{ announcement.created_at|date:'d/m/Y à H:i' }}</p>
+      {% if not is_student_match %}
+      <div style="margin-top:10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#b45309;padding:8px 12px;border-radius:12px;font-size:0.85rem;display:inline-flex;align-items:center;gap:8px;">
+        <span>ℹ️</span>
+        <span>Cette annonce s'adresse prioritairement à la <strong>{{ announcement.get_licence_display }}</strong> (votre niveau : <strong>{{ user.get_licence_display }}</strong>).</span>
+      </div>
+      {% endif %}
     </div>
 
     {% if user.is_teacher_or_admin %}

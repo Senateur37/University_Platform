@@ -6,10 +6,25 @@
     <div>
       <div class="eyebrow">Actualités du Campus</div>
       <h1>Toutes les Annonces</h1>
+      {% if user.is_authenticated and user.user_type == 'student' and user.licence %}
+      <p class="muted" style="margin:4px 0 0;font-size:0.9rem;">
+        Affichage adapté à votre promotion : <strong>{{ user.get_licence_display }}</strong> &amp; annonces campus.
+      </p>
+      {% endif %}
     </div>
     {% if user.is_teacher_or_admin %}
     <a class="button primary" href="{% url 'announcement_create' %}">+ Publier une annonce</a>
     {% endif %}
+  </div>
+
+  <!-- Filter Licence Tabs -->
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;">Filtrer par Licence :</span>
+    <a href="{% url 'announcement_list' %}" class="filter-tab {% if not selected_licence %}active{% endif %}">Toutes</a>
+    <a href="{% url 'announcement_list' %}?licence=L1" class="filter-tab {% if selected_licence == 'L1' %}active{% endif %}">Licence 1 (L1)</a>
+    <a href="{% url 'announcement_list' %}?licence=L2" class="filter-tab {% if selected_licence == 'L2' %}active{% endif %}">Licence 2 (L2)</a>
+    <a href="{% url 'announcement_list' %}?licence=L3" class="filter-tab {% if selected_licence == 'L3' %}active{% endif %}">Licence 3 (L3)</a>
+    <a href="{% url 'announcement_list' %}?licence=ALL" class="filter-tab {% if selected_licence == 'ALL' %}active{% endif %}">Tout le campus</a>
   </div>
 
   <div class="list-stack">
@@ -17,8 +32,17 @@
     <article class="announce-card">
       <div class="announce-top">
         <div>
-          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
-            <span class="announce-tag">{{ announcement.course.code|default:'Générale' }}</span>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">
+            {% if announcement.course %}
+            <span class="announce-tag">{{ announcement.course.code }}</span>
+            {% else %}
+            <span class="announce-tag" style="background:rgba(99,102,241,0.08);color:#4f46e5;">Info Campus</span>
+            {% endif %}
+
+            <span class="mini-pill" style="{% if announcement.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif announcement.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif announcement.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;padding:4px 10px;border-radius:999px;font-size:0.75rem;">
+              🎓 {{ announcement.get_licence_display|default:'Toutes les Licences' }}
+            </span>
+
             {% if announcement.is_global %}<span class="pill info" style="font-size:0.72rem;">Global</span>{% endif %}
           </div>
           <h2><a href="{% url 'announcement_detail' announcement.pk %}" style="color:inherit;">{{ announcement.title }}</a></h2>
@@ -27,7 +51,7 @@
       </div>
       <p class="muted" style="font-size:0.88rem;">Auteur : <strong>{{ announcement.author.get_full_name|default:announcement.author.username }}</strong></p>
       <p style="line-height:1.6;">{{ announcement.content|truncatewords:40 }}</p>
-      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;">
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
         <a href="{% url 'announcement_detail' announcement.pk %}" class="button secondary" style="padding:6px 12px;font-size:0.8rem;">Lire l'annonce complète →</a>
         {% if user.is_teacher_or_admin %}
         <div style="display:flex;gap:6px;">
@@ -39,8 +63,8 @@
     </article>
     {% empty %}
     <article class="announce-card empty-state">
-      <h2>Aucune annonce publiée.</h2>
-      <p class="muted">Les annonces apparaîtront ici dès leur publication.</p>
+      <h2>Aucune annonce trouvée.</h2>
+      <p class="muted">Aucune publication ne correspond aux critères sélectionnés.</p>
     </article>
     {% endfor %}
   </div>

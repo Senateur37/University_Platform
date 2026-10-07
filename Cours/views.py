@@ -28,9 +28,12 @@ class CourseForm(forms.ModelForm):
             'title': 'Titre du cours',
             'code': 'Code du cours (ex: INFO101)',
             'category': 'Filière / Catégorie',
-            'licence': 'Niveau / Licence requis',
+            'licence': 'Licence concernée (Niveau requis)',
             'description': 'Description du cours',
             'teacher': 'Enseignant responsable',
+        }
+        help_texts = {
+            'licence': 'Indiquez quelle Licence ce cours concerne (Licence 1, Licence 2, Licence 3 ou Toutes les Licences).',
         }
 
 
