@@ -1,12 +1,12 @@
 # Configuration Nixpacks pour Coolify (OVH)
-[phases.setup]
-nixPkgs = ["python312", "pkg-config"]
+providers = ["python"]
 
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
+[phases.setup]
+nixPkgs = ["...", "curl"]
 
 [phases.build]
-cmds = ["python manage.py collectstatic --noinput"]
+cmds = ["SECRET_KEY=build-only python manage.py collectstatic --noinput"]
 
 [start]
-cmd = "python manage.py migrate --noinput && gunicorn Codex.wsgi:application --bind 0.0.0.0:8000"
+cmd = "sh entrypoint.sh gunicorn Codex.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60"
+
