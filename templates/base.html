@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="fr">
 
@@ -5,6 +6,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Platform Universitaire EUTG{% endblock %}</title>
+
+  <!-- Favicon / App Icon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+  <link rel="alternate icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'img/icon-192.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/icon-192.png' %}">
+  <meta name="theme-color" content="#4f46e5">
   <style>
     :root {
       --bg: #edf3fb;
@@ -1049,7 +1058,7 @@
   <!-- Mobile Header Bar for Mobile/Tablet -->
   <div class="mobile-header">
     <a class="brand" href="{% url 'dashboard' %}" style="padding:0;">
-      <span class="brand-mark">U</span>
+      <img src="{% static 'favicon.svg' %}" class="brand-mark" alt="Logo EUTG">
       <span>EUTG</span>
     </a>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -1071,7 +1080,7 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:12px;">
-        <a class="brand" href="{% url 'dashboard' %}" style="padding:0;"><span class="brand-mark">U</span><span>Universite EUTG</span></a>
+        <a class="brand" href="{% url 'dashboard' %}" style="padding:0;"><img src="{% static 'favicon.svg' %}" class="brand-mark" alt="Logo EUTG"><span>Universite EUTG</span></a>
         <button type="button" class="mobile-close-btn" onclick="closeMobileSidebar()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:32px;height:32px;border-radius:10px;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;">✕</button>
       </div>
       <div class="side-label">Espace de travail</div>
@@ -1224,7 +1233,7 @@
         {% else %}
         <nav class="topbar public-topbar">
           <a href="{% url 'home' %}" class="brand" style="padding:0;color:#0f172a;">
-            <span class="brand-mark">U</span><span>EUTG</span>
+            <img src="{% static 'favicon.svg' %}" class="brand-mark" alt="Logo EUTG"><span>EUTG</span>
           </a>
           <div class="topbar-actions">
             <a href="{% url 'login' %}" class="button ghost">Connexion</a>

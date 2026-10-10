@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="50%" stop-color="#3730a3"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <!-- Background squircle -->
+  <rect width="512" height="512" rx="120" fill="url(#bgGrad)"/>
+  <rect x="12" y="12" width="488" height="488" rx="110" fill="none" stroke="rgba(255, 255, 255, 0.22)" stroke-width="8"/>
+  <g filter="url(#dropShadow)">
+    <!-- Mortarboard cap top -->
+    <polygon points="256,110 440,195 256,280 72,195" fill="url(#goldGrad)"/>
+    <!-- Cap base/skull -->
+    <path d="M148,235 L148,310 C148,375 364,375 364,310 L364,235 L256,285 Z" fill="#b45309"/>
+    <path d="M158,245 L158,305 C158,358 354,358 354,305 L354,245 L256,290 Z" fill="url(#goldGrad)"/>
+    <!-- Tassel cord & knot -->
+    <circle cx="256" cy="195" r="14" fill="#92400e"/>
+    <circle cx="256" cy="195" r="10" fill="#fde047"/>
+    <path d="M256,195 Q395,225 405,305" fill="none" stroke="#fef08a" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="405" cy="315" r="14" fill="url(#goldGrad)"/>
+    <polygon points="398,325 412,325 416,365 394,365" fill="#f59e0b"/>
+    <!-- University Letter U -->
+    <path d="M216,365 L216,400 C216,425 296,425 296,400 L296,365" fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

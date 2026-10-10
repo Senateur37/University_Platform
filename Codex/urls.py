@@ -81,7 +81,10 @@ def health_check_view(request):
         'error': last_error,
     }, status=status_code)
 
+from django.views.generic.base import RedirectView
+
 urlpatterns = [
+    path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
     path('health/', health_check_view, name='health_check'),
     path('healthz/', health_check_view, name='healthz_check'),
     path('up/', health_check_view, name='up_check'),
