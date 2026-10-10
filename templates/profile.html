@@ -30,6 +30,26 @@
         <input type="hidden" name="update_profile" value="1">
         
         {% for field in profile_form %}
+        {% if field.name == 'avatar' %}
+        <div class="field-group" style="padding:14px;background:#f8fafc;border:1px solid rgba(148,163,184,0.3);border-radius:14px;">
+          <label for="{{ field.id_for_label }}" style="display:flex;align-items:center;gap:8px;">
+            <span>📷</span> {{ field.label }}
+          </label>
+          {% if user.avatar %}
+          <div style="display:flex;align-items:center;gap:12px;margin:6px 0;">
+            <img src="{{ user.avatar.url }}" alt="Avatar actuel" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">
+            <div style="font-size:0.82rem;color:var(--muted);">
+              <strong>Photo actuelle enregistrée</strong>
+            </div>
+          </div>
+          {% endif %}
+          {{ field }}
+          <small style="color:var(--muted);font-size:0.78rem;">Formats acceptés : PNG, JPG, JPEG, WEBP (Max 20 Mo).</small>
+          {% if field.errors %}
+          <div class="field-errors">{% for error in field.errors %}<span>{{ error }}</span>{% endfor %}</div>
+          {% endif %}
+        </div>
+        {% else %}
         <div class="field-group">
           <label for="{{ field.id_for_label }}">{{ field.label }}</label>
           {{ field }}
@@ -37,6 +57,7 @@
           <div class="field-errors">{% for error in field.errors %}<span>{{ error }}</span>{% endfor %}</div>
           {% endif %}
         </div>
+        {% endif %}
         {% endfor %}
 
         <button type="submit" class="button primary" style="margin-top:10px;">Mettre à jour le profil</button>
@@ -80,7 +101,7 @@
     font-weight: 700;
     font-size: 0.9rem;
   }
-  .styled-form input,
+  .styled-form input:not([type="checkbox"]):not([type="radio"]),
   .styled-form textarea,
   .styled-form select {
     width: 100%;
@@ -89,6 +110,15 @@
     border-radius: 12px;
     padding: 10px 14px;
     font: inherit;
+  }
+  .styled-form input[type="checkbox"] {
+    width: auto !important;
+    margin-right: 6px;
+    cursor: pointer;
+  }
+  .styled-form input[type="file"] {
+    padding: 8px 10px;
+    background: white;
   }
 </style>
 {% endblock %}
