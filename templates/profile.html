@@ -4,8 +4,9 @@
 <section class="profile-shell">
   <div class="dashboard-hero">
     <div style="display:flex;align-items:center;gap:20px;">
-      {% if user.avatar %}
-      <img src="{{ user.avatar.url }}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid white;box-shadow:var(--shadow);">
+      {% if user.avatar_url %}
+      <img src="{{ user.avatar_url }}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid white;box-shadow:var(--shadow);" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+      <div class="avatar" style="display:none;width:72px;height:72px;font-size:1.8rem;box-shadow:var(--shadow);">{{ user.username|first|upper }}</div>
       {% else %}
       <div class="avatar" style="width:72px;height:72px;font-size:1.8rem;box-shadow:var(--shadow);">{{ user.username|first|upper }}</div>
       {% endif %}
@@ -35,9 +36,9 @@
           <label for="{{ field.id_for_label }}" style="display:flex;align-items:center;gap:8px;">
             <span>📷</span> {{ field.label }}
           </label>
-          {% if user.avatar %}
+          {% if user.avatar_url %}
           <div style="display:flex;align-items:center;gap:12px;margin:6px 0;">
-            <img src="{{ user.avatar.url }}" alt="Avatar actuel" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);">
+            <img src="{{ user.avatar_url }}" alt="Avatar actuel" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);" onerror="this.parentElement.style.display='none';">
             <div style="font-size:0.82rem;color:var(--muted);">
               <strong>Photo actuelle enregistrée</strong>
             </div>

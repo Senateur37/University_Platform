@@ -21,6 +21,26 @@ class User(AbstractUser):
     bio = models.TextField(blank=True, verbose_name="Biographie")
     filiere = models.CharField(max_length=100, blank=True, verbose_name="Filière / Département")
     avatar = models.FileField(upload_to="avatars/", null=True, blank=True, validators=[validate_avatar_image, validate_file_size])
+    avatar_base64 = models.TextField(blank=True, null=True, verbose_name="Avatar permanent (Base64)")
+
+    @property
+    def avatar_url(self):
+        """
+        Retourne l'URL de l'avatar valide.
+        1. Tente d'utiliser le fichier physique sur le disque s'il existe.
+        2. Si le fichier physique a été effacé par un redémarrage Docker sans volume,
+           utilise automatiquement la copie permanente Base64 stockée en base de données.
+        3. Retourne None si aucun avatar n'est disponible.
+        """
+        if self.avatar:
+            try:
+                if self.avatar.storage.exists(self.avatar.name):
+                    return self.avatar.url
+            except Exception:
+                pass
+        if self.avatar_base64:
+            return self.avatar_base64
+        return None
 
     @property
     def is_teacher_or_admin(self):
@@ -31,6 +51,45 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if (self.is_superuser or self.is_staff) and not self.user_type:
             self.user_type = 'admin'
+
+        # Sauvegarde permanente de l'avatar en Base64 dans la BDD
+        # pour éviter la perte lors des redémarrages de conteneurs Docker
+        if self.avatar:
+            try:
+                import base64
+                from io import BytesIO
+                from PIL import Image
+
+                if hasattr(self.avatar, 'file'):
+                    self.avatar.seek(0)
+                    img = Image.open(self.avatar)
+                    if img.mode in ('RGBA', 'P'):
+                        img = img.convert('RGB')
+                    img.thumbnail((256, 256), Image.Resampling.LANCZOS)
+                    buf = BytesIO()
+                    img.save(buf, format='JPEG', quality=85, optimize=True)
+                    b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+                    self.avatar_base64 = f"data:image/jpeg;base64,{b64_str}"
+                    self.avatar.seek(0)
+                elif not self.avatar_base64:
+                    try:
+                        if self.avatar.storage.exists(self.avatar.name):
+                            with self.avatar.storage.open(self.avatar.name, 'rb') as f:
+                                img = Image.open(f)
+                                if img.mode in ('RGBA', 'P'):
+                                    img = img.convert('RGB')
+                                img.thumbnail((256, 256), Image.Resampling.LANCZOS)
+                                buf = BytesIO()
+                                img.save(buf, format='JPEG', quality=85, optimize=True)
+                                b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+                                self.avatar_base64 = f"data:image/jpeg;base64,{b64_str}"
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+        else:
+            self.avatar_base64 = None
+
         super().save(*args, **kwargs)
 
 

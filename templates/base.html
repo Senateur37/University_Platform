@@ -1160,8 +1160,9 @@
           </div>
         </a>
         <div class="user-chip">
-          {% if user.avatar %}
-          <img src="{{ user.avatar.url }}" class="avatar" alt="Avatar" style="object-fit:cover;">
+          {% if user.avatar_url %}
+          <img src="{{ user.avatar_url }}" class="avatar" alt="Avatar" style="object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+          <span class="avatar" style="display:none;">{{ user.username|first|upper }}</span>
           {% else %}
           <span class="avatar">{{ user.username|first|upper }}</span>
           {% endif %}

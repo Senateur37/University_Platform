@@ -23,8 +23,11 @@
 
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:16px;border-top:1px solid rgba(255,255,255,0.15);padding-top:14px;">
       <div style="display:flex;align-items:center;gap:12px;">
-        {% if topic.author.avatar %}
-        <img src="{{ topic.author.avatar.url }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}">
+        {% if topic.author.avatar_url %}
+        <img src="{{ topic.author.avatar_url }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div style="display:none;width:40px;height:40px;border-radius:50%;background:var(--accent);color:white;align-items:center;justify-content:center;font-weight:700;">
+          {{ topic.author.username|first|upper }}
+        </div>
         {% else %}
         <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">
           {{ topic.author.username|first|upper }}
@@ -77,8 +80,11 @@
     <div class="panel-list">
       {% for post in posts %}
       <div class="course-item" style="padding:14px 16px;align-items:flex-start;flex-wrap:wrap;gap:10px;">
-        {% if post.author.avatar %}
-        <img src="{{ post.author.avatar.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="{{ post.author.username }}">
+        {% if post.author.avatar_url %}
+        <img src="{{ post.author.avatar_url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="{{ post.author.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div style="display:none;width:36px;height:36px;border-radius:50%;background:var(--sidebar);color:white;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">
+          {{ post.author.username|first|upper }}
+        </div>
         {% else %}
         <div style="width:36px;height:36px;border-radius:50%;background:var(--sidebar);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">
           {{ post.author.username|first|upper }}

@@ -32,8 +32,11 @@
     {% for topic in topics %}
     <article class="course-item" style="padding:16px 18px;{% if topic.is_pinned %}border-left:4px solid var(--accent);background:rgba(79,70,229,0.03);{% endif %}">
       <div style="display:flex;gap:12px;align-items:flex-start;flex:1;flex-wrap:wrap;">
-        {% if topic.author.avatar %}
-        <img src="{{ topic.author.avatar.url }}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}">
+        {% if topic.author.avatar_url %}
+        <img src="{{ topic.author.avatar_url }}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div style="display:none;width:38px;height:38px;border-radius:50%;background:var(--accent);color:white;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;flex-shrink:0;">
+          {{ topic.author.username|first|upper }}
+        </div>
         {% else %}
         <div style="width:38px;height:38px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;flex-shrink:0;">
           {{ topic.author.username|first|upper }}
