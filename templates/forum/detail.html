@@ -19,7 +19,7 @@
       {% endif %}
     </div>
 
-    <h1 style="font-size:1.8rem;margin:6px 0 12px;">{{ topic.title }}</h1>
+    <h1 style="font-size:1.8rem;margin:6px 0 12px;word-break:break-word;overflow-wrap:anywhere;">{{ topic.title }}</h1>
 
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-top:16px;border-top:1px solid rgba(255,255,255,0.15);padding-top:14px;">
       <div style="display:flex;align-items:center;gap:12px;">
@@ -64,22 +64,24 @@
   </article>
 
   <!-- Topic Original Message Content -->
-  <article class="panel" style="margin-top:20px;">
+  <article class="panel" style="margin-top:20px;overflow:hidden;min-width:0;max-width:100%;">
     <div class="panel-header">
       <h2>Question / Sujet initial</h2>
     </div>
-    <p style="line-height:1.7;white-space:pre-line;font-size:1.02rem;color:var(--ink);">{{ topic.content }}</p>
+    <div class="forum-text-container">
+      <p class="forum-text-content" style="font-size:1.02rem;">{{ topic.content }}</p>
+    </div>
   </article>
 
   <!-- Replies List -->
-  <article class="panel" style="margin-top:24px;">
+  <article class="panel" style="margin-top:24px;overflow:hidden;min-width:0;max-width:100%;">
     <div class="panel-header">
       <h2>💬 Réponses ({{ posts|length }})</h2>
     </div>
 
-    <div class="panel-list">
+    <div class="forum-replies-list">
       {% for post in posts %}
-      <div class="course-item" style="padding:14px 16px;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+      <div class="forum-post-card">
         {% if post.author.avatar_url %}
         <img src="{{ post.author.avatar_url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;" alt="{{ post.author.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div style="display:none;width:36px;height:36px;border-radius:50%;background:var(--sidebar);color:white;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">
@@ -91,8 +93,8 @@
         </div>
         {% endif %}
 
-        <div style="flex:1;min-width:200px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+        <div class="forum-post-main">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
               <strong style="font-size:0.9rem;">{{ post.author.get_full_name|default:post.author.username }}</strong>
               <span class="pill secondary" style="font-size:0.72rem;">{{ post.author.get_user_type_display }}</span>
@@ -107,7 +109,9 @@
             {% endif %}
           </div>
 
-          <p style="line-height:1.6;white-space:pre-line;margin:0;font-size:0.92rem;color:var(--ink);">{{ post.content }}</p>
+          <div class="forum-text-container">
+            <p class="forum-text-content">{{ post.content }}</p>
+          </div>
         </div>
       </div>
       {% empty %}
@@ -119,7 +123,7 @@
   </article>
 
   <!-- Reply Input Form -->
-  <article class="panel" style="margin-top:24px;">
+  <article class="panel" style="margin-top:24px;overflow:hidden;min-width:0;max-width:100%;">
     <div class="panel-header">
       <h2>Participer au débat</h2>
     </div>
@@ -129,9 +133,11 @@
       🔒 Cette discussion a été verrouillée par un administrateur ou enseignant.
     </div>
     {% elif user.is_authenticated %}
-    <form action="{% url 'post_create' topic.pk %}" method="post" style="display:grid;gap:14px;">
+    <form action="{% url 'post_create' topic.pk %}" method="post" style="display:grid;gap:14px;min-width:0;max-width:100%;">
       {% csrf_token %}
-      {{ form.content }}
+      <div style="width:100%;max-width:100%;overflow:hidden;">
+        {{ form.content }}
+      </div>
       <div style="display:flex;justify-content:flex-end;">
         <button type="submit" class="button primary">Envoyer la réponse</button>
       </div>
@@ -141,4 +147,85 @@
     {% endif %}
   </article>
 </section>
+
+<style>
+  .detail-shell,
+  .panel {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .forum-replies-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .forum-post-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 16px 18px !important;
+    border-radius: 16px !important;
+    background: rgba(248, 250, 252, 0.85) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .forum-post-main {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .forum-text-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: block !important;
+  }
+
+  .forum-text-content {
+    margin: 0 !important;
+    font-size: 0.94rem !important;
+    line-height: 1.65 !important;
+    color: var(--ink) !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-all !important;
+    word-wrap: break-word !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+  }
+
+  textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 14px !important;
+    padding: 12px 14px !important;
+    font: inherit !important;
+    resize: vertical !important;
+  }
+</style>
 {% endblock %}

@@ -31,7 +31,7 @@
   <div class="panel-list" style="display:grid;gap:14px;">
     {% for topic in topics %}
     <article class="course-item" style="padding:16px 18px;{% if topic.is_pinned %}border-left:4px solid var(--accent);background:rgba(79,70,229,0.03);{% endif %}">
-      <div style="display:flex;gap:12px;align-items:flex-start;flex:1;flex-wrap:wrap;">
+      <div style="display:flex;gap:12px;align-items:flex-start;flex:1;flex-wrap:wrap;min-width:0;max-width:100%;">
         {% if topic.author.avatar_url %}
         <img src="{{ topic.author.avatar_url }}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;" alt="{{ topic.author.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div style="display:none;width:38px;height:38px;border-radius:50%;background:var(--accent);color:white;align-items:center;justify-content:center;font-weight:700;font-size:0.95rem;flex-shrink:0;">
@@ -43,7 +43,7 @@
         </div>
         {% endif %}
 
-        <div style="flex:1;min-width:200px;">
+        <div style="flex:1;min-width:0;max-width:100%;word-break:break-word;overflow-wrap:anywhere;">
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
             {% if topic.is_pinned %}<span class="pill warning" style="font-size:0.75rem;">📌 Épinglé</span>{% endif %}
             {% if topic.is_closed %}<span class="pill danger" style="font-size:0.75rem;">🔒 Verrouillé</span>{% endif %}
@@ -55,11 +55,11 @@
             {% endif %}
           </div>
 
-          <h3 style="margin:4px 0 6px;font-size:1.05rem;">
+          <h3 style="margin:4px 0 6px;font-size:1.05rem;word-break:break-word;overflow-wrap:anywhere;">
             <a href="{% url 'topic_detail' topic.pk %}" style="text-decoration:none;color:var(--ink);">{{ topic.title }}</a>
           </h3>
 
-          <p style="color:var(--muted);font-size:0.88rem;margin:0 0 8px;line-height:1.5;">
+          <p style="color:var(--muted);font-size:0.88rem;margin:0 0 8px;line-height:1.5;word-break:break-word;overflow-wrap:anywhere;">
             {{ topic.content|truncatewords:28 }}
           </p>
 
