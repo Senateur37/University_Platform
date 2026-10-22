@@ -205,6 +205,36 @@ class ComprehensivePlatformTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('attachment', response['Content-Disposition'])
 
+    def test_auto_restore_after_redeploy_wipe(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from Cours.models import CourseResource
+
+        # 1. Créer une ressource avec fichier (qui génère automatiquement la sauvegarde Base64)
+        file = SimpleUploadedFile("support_redeploy.txt", b"Contenu persistant indestructible", content_type="text/plain")
+        resource = CourseResource.objects.create(
+            course=self.course,
+            title="Support Redeploy",
+            file=file
+        )
+        self.assertTrue(resource.file_base64)
+
+        # 2. Simuler le redéploiement Docker en supprimant le fichier physique du disque
+        if resource.file.storage.exists(resource.file.name):
+            resource.file.storage.delete(resource.file.name)
+        self.assertFalse(resource.file.storage.exists(resource.file.name))
+
+        # 3. Le téléchargement via resource_download réussit en restaurant le fichier depuis la BDD
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('resource_download', args=[self.course.pk, resource.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(b''.join(response.streaming_content), b"Contenu persistant indestructible")
+
+        # 4. L'accès direct via l'URL /media/ réussit également et auto-restaure le fichier
+        if resource.file.storage.exists(resource.file.name):
+            resource.file.storage.delete(resource.file.name)
+        resp_media = self.client.get(f"/media/{resource.file.name}")
+        self.assertEqual(resp_media.status_code, 200)
+
     def test_notifications_system(self):
         from Comptes.models import Notification
 

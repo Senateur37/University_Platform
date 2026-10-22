@@ -83,6 +83,59 @@ def health_check_view(request):
 
 from django.views.generic.base import RedirectView
 
+import os
+import base64
+
+def auto_restore_media_serve(request, path):
+    """
+    Sert les fichiers média. Si le fichier a été effacé du disque du conteneur
+    suite à un redéploiement Coolify / Docker sans volume persistant, le fichier
+    est automatiquement régénéré sur le disque depuis la base de données PostgreSQL
+    puis servi immédiatement sans erreur.
+    """
+    full_path = os.path.join(settings.MEDIA_ROOT, path)
+    if not os.path.exists(full_path):
+        try:
+            file_bytes = None
+            target_dir = os.path.dirname(full_path)
+            base_name = os.path.basename(path)
+
+            if 'courses/resources' in path or 'courses' in path:
+                from Cours.models import CourseResource
+                res = CourseResource.objects.filter(file__endswith=base_name).exclude(file_base64__isnull=True).exclude(file_base64='').first()
+                if res and res.file_base64:
+                    file_bytes = base64.b64decode(res.file_base64)
+
+            elif 'assignments/attachments' in path or 'assignments' in path:
+                from Missions.models import Assignment
+                assign = Assignment.objects.filter(attachment__endswith=base_name).exclude(attachment_base64__isnull=True).exclude(attachment_base64='').first()
+                if assign and assign.attachment_base64:
+                    file_bytes = base64.b64decode(assign.attachment_base64)
+
+            elif 'assignments/submissions' in path or 'submissions' in path:
+                from Missions.models import Submission
+                sub = Submission.objects.filter(file__endswith=base_name).exclude(file_base64__isnull=True).exclude(file_base64='').first()
+                if sub and sub.file_base64:
+                    file_bytes = base64.b64decode(sub.file_base64)
+
+            elif 'avatars' in path:
+                from Comptes.models import User
+                user_obj = User.objects.filter(avatar__endswith=base_name).exclude(avatar_base64__isnull=True).exclude(avatar_base64='').first()
+                if user_obj and user_obj.avatar_base64:
+                    b64_data = user_obj.avatar_base64
+                    if ',' in b64_data:
+                        b64_data = b64_data.split(',', 1)[1]
+                    file_bytes = base64.b64decode(b64_data)
+
+            if file_bytes:
+                os.makedirs(target_dir, exist_ok=True)
+                with open(full_path, 'wb') as f:
+                    f.write(file_bytes)
+        except Exception:
+            pass
+
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
 urlpatterns = [
     path('favicon.ico', RedirectView.as_view(url='/static/favicon.ico', permanent=True)),
     path('health/', health_check_view, name='health_check'),
@@ -94,7 +147,7 @@ urlpatterns = [
     path('missions/', include('Missions.urls')),
     path('annonces/', include('Annonces.urls')),
     path('forum/', include('Forum.urls')),
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', auto_restore_media_serve),
 ]
 
 handler404 = 'Comptes.views.custom_404_view'

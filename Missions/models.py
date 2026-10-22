@@ -25,8 +25,26 @@ class Assignment(models.Model):
     description = models.TextField()
     max_points = models.DecimalField(max_digits=5, decimal_places=2, default=20.00, verbose_name="Note maximale")
     attachment = models.FileField(upload_to="assignments/attachments/", null=True, blank=True, verbose_name="Sujet / Pièce jointe", validators=[validate_secure_file_extension, validate_file_size])
+    attachment_base64 = models.TextField(blank=True, null=True, verbose_name="Pièce jointe permanente (Base64)")
     due_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.attachment:
+            try:
+                import base64
+                if hasattr(self.attachment, 'file'):
+                    self.attachment.seek(0)
+                    data = self.attachment.read()
+                    self.attachment_base64 = base64.b64encode(data).decode('utf-8')
+                    self.attachment.seek(0)
+                elif not self.attachment_base64:
+                    if self.attachment.storage.exists(self.attachment.name):
+                        with self.attachment.storage.open(self.attachment.name, 'rb') as f:
+                            self.attachment_base64 = base64.b64encode(f.read()).decode('utf-8')
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
 
     def user_has_access(self, user):
         """Vérifie si un étudiant a accès à ce devoir en fonction de sa Licence."""
@@ -51,9 +69,27 @@ class Submission(models.Model):
         limit_choices_to={"user_type": "student"},
     )
     file = models.FileField(upload_to="assignments/submissions/", validators=[validate_secure_file_extension, validate_file_size])
+    file_base64 = models.TextField(blank=True, null=True, verbose_name="Copie permanente (Base64)")
     submitted_at = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
     feedback = models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            try:
+                import base64
+                if hasattr(self.file, 'file'):
+                    self.file.seek(0)
+                    data = self.file.read()
+                    self.file_base64 = base64.b64encode(data).decode('utf-8')
+                    self.file.seek(0)
+                elif not self.file_base64:
+                    if self.file.storage.exists(self.file.name):
+                        with self.file.storage.open(self.file.name, 'rb') as f:
+                            self.file_base64 = base64.b64encode(f.read()).decode('utf-8')
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ("assignment", "student")

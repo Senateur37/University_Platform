@@ -2,6 +2,7 @@
 set -e
 
 echo "==> Initialisation de la plateforme Codex..."
+mkdir -p /app/media/courses/resources /app/media/assignments/attachments /app/media/assignments/submissions /app/media/avatars 2>/dev/null || true
 
 # Attendre que la base de donnees reponde (utile quand PostgreSQL demarre en meme temps)
 python -c "

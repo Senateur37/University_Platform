@@ -159,20 +159,38 @@ def seed():
     print("[OK] Cours et inscriptions mep.")
 
     # 3. Création de ressources pour les cours
-    CourseResource.objects.get_or_create(
+    from django.core.files.base import ContentFile
+    sample_pdf_bytes = (
+        b"%PDF-1.4\n"
+        b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+        b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+        b"3 0 obj<</Type/Page/MediaBox[0 0 595 842]/Parent 2 0 R/Resources<<>>/Contents 4 0 R>>endobj\n"
+        b"4 0 obj<</Length 55>>stream\n"
+        b"BT /F1 12 Tf 50 750 Td (Support de cours universitaire Codex) Tj ET\n"
+        b"endstream\nendobj\n"
+        b"xref\n0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000056 00000 n \n0000000111 00000 n \n0000000212 00000 n \n"
+        b"trailer<</Size 5/Root 1 0 R>>\nstartxref\n317\n%%EOF\n"
+    )
+
+    res1, _ = CourseResource.objects.get_or_create(
         course=c1,
         title="Support de cours 01 - Les Boucles et Fonctions",
         defaults={
             "description": "Diapositives du cours magistral n°1.",
         }
     )
-    CourseResource.objects.get_or_create(
+    if not res1.file or not res1.file_base64:
+        res1.file.save("Support_Python_L1.pdf", ContentFile(sample_pdf_bytes), save=True)
+
+    res2, _ = CourseResource.objects.get_or_create(
         course=c2,
         title="Guide d'installation et Architecture Django",
         defaults={
             "description": "Fiche pratique pour initialiser un projet Django moderne.",
         }
     )
+    if not res2.file or not res2.file_base64:
+        res2.file.save("Guide_Django_L2.pdf", ContentFile(sample_pdf_bytes), save=True)
 
     # 4. Création de missions (devoirs)
     m1, _ = Assignment.objects.get_or_create(
@@ -186,6 +204,8 @@ def seed():
         }
     )
     m1.licence = "L1"
+    if not m1.attachment or not m1.attachment_base64:
+        m1.attachment.save("Sujet_TP1_Algorithmes.pdf", ContentFile(sample_pdf_bytes), save=False)
     m1.save()
 
     m2, _ = Assignment.objects.get_or_create(

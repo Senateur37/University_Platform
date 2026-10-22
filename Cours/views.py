@@ -271,15 +271,40 @@ def resource_download(request, pk, resource_pk):
         )
         return redirect('course_detail', pk=pk)
 
-    if not resource.file:
+    if not resource.file and not resource.file_base64:
         messages.error(request, "Aucun fichier disponible pour ce document.")
         return redirect('course_detail', pk=pk)
 
+    filename = os.path.basename(resource.file.name) if resource.file else f"{resource.title}.pdf"
+
+    # 1. Tenter d'ouvrir le fichier physique sur le disque s'il existe
     try:
-        filename = os.path.basename(resource.file.name)
-        return FileResponse(resource.file.open('rb'), as_attachment=True, filename=filename)
-    except (FileNotFoundError, ValueError):
-        messages.error(request, "Le fichier est introuvable sur le serveur.")
-        return redirect('course_detail', pk=pk)
+        if resource.file and resource.file.storage.exists(resource.file.name):
+            return FileResponse(resource.file.open('rb'), as_attachment=True, filename=filename)
+    except Exception:
+        pass
+
+    # 2. Si le fichier a été effacé du disque par un redéploiement Docker :
+    # Restauration automatique depuis la copie de secours Base64 stockée en base de données
+    if resource.file_base64:
+        try:
+            import base64
+            from io import BytesIO
+            from django.conf import settings
+            file_bytes = base64.b64decode(resource.file_base64)
+            # Reconstituer également le fichier sur le disque du conteneur
+            try:
+                full_path = os.path.join(settings.MEDIA_ROOT, resource.file.name if resource.file else f"courses/resources/{filename}")
+                os.makedirs(os.path.dirname(full_path), exist_ok=True)
+                with open(full_path, 'wb') as f:
+                    f.write(file_bytes)
+            except Exception:
+                pass
+            return FileResponse(BytesIO(file_bytes), as_attachment=True, filename=filename)
+        except Exception:
+            pass
+
+    messages.error(request, "Le fichier est introuvable sur le serveur.")
+    return redirect('course_detail', pk=pk)
 
 

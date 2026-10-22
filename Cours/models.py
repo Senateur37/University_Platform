@@ -52,5 +52,23 @@ class CourseResource(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="resources")
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to="courses/resources/", validators=[validate_secure_file_extension, validate_file_size])
+    file_base64 = models.TextField(blank=True, null=True, verbose_name="Copie de secours permanente (Base64)")
     description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.file:
+            try:
+                import base64
+                if hasattr(self.file, 'file'):
+                    self.file.seek(0)
+                    data = self.file.read()
+                    self.file_base64 = base64.b64encode(data).decode('utf-8')
+                    self.file.seek(0)
+                elif not self.file_base64:
+                    if self.file.storage.exists(self.file.name):
+                        with self.file.storage.open(self.file.name, 'rb') as f:
+                            self.file_base64 = base64.b64encode(f.read()).decode('utf-8')
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
