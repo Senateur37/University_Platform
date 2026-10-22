@@ -7,17 +7,37 @@
     <div>
       <div class="eyebrow">Évaluations du Campus</div>
       <h1>Missions & Devoirs</h1>
+      {% if user.is_authenticated and user.user_type == 'student' and user.licence %}
+      <p class="muted" style="margin:4px 0 0;font-size:0.9rem;">
+        Affichage adapté à votre promotion : <strong>{{ user.get_licence_display }}</strong> &amp; devoirs communs.
+      </p>
+      {% endif %}
     </div>
     {% if user.is_teacher_or_admin %}
     <a class="button primary" href="{% url 'assignment_create' %}">+ Nouvelle mission</a>
     {% endif %}
   </div>
 
+  <!-- Filter Licence Tabs -->
+  <div class="filter-bar" style="margin-bottom:16px;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;flex-shrink:0;">Filtrer par Licence :</span>
+    <a href="{% url 'assignment_list' %}" class="filter-tab {% if not selected_licence %}active{% endif %}">Toutes</a>
+    <a href="{% url 'assignment_list' %}?licence=L1" class="filter-tab {% if selected_licence == 'L1' %}active{% endif %}">Licence 1 (L1)</a>
+    <a href="{% url 'assignment_list' %}?licence=L2" class="filter-tab {% if selected_licence == 'L2' %}active{% endif %}">Licence 2 (L2)</a>
+    <a href="{% url 'assignment_list' %}?licence=L3" class="filter-tab {% if selected_licence == 'L3' %}active{% endif %}">Licence 3 (L3)</a>
+    <a href="{% url 'assignment_list' %}?licence=ALL" class="filter-tab {% if selected_licence == 'ALL' %}active{% endif %}">Toutes les Licences</a>
+  </div>
+
   <div class="grid">
     {% for assignment in assignments %}
     <article class="feature-card">
       <div class="card-top">
-        <span class="course-badge">{{ assignment.course.code }}</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span class="course-badge">{{ assignment.course.code }}</span>
+          <span class="mini-pill" style="{% if assignment.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif assignment.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif assignment.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;padding:2px 8px;border-radius:999px;font-size:0.75rem;">
+            🎓 {{ assignment.get_licence_display|default:'Toutes Licences' }}
+          </span>
+        </div>
         {% if assignment.due_date < now %}
         <span class="mini-pill" style="background:rgba(239,68,68,0.08);color:var(--danger);">Terminé</span>
         {% else %}

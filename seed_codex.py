@@ -179,21 +179,27 @@ def seed():
         title="TP 1 : Algorithmes de Tri en Python",
         course=c1,
         defaults={
+            "licence": "L1",
             "description": "Implementez le tri a bulles et le tri fusion en Python, puis comparez leur complexite temporelle sur 10 000 elements.",
             "max_points": 20.00,
             "due_date": timezone.now() + timedelta(days=7),
         }
     )
+    m1.licence = "L1"
+    m1.save()
 
     m2, _ = Assignment.objects.get_or_create(
         title="Projet : Creation de la plateforme d'evaluation",
         course=c2,
         defaults={
+            "licence": "L2",
             "description": "Realisez une application Django complete avec modeles, vues, formulaires et templates personnalises.",
             "max_points": 20.00,
             "due_date": timezone.now() + timedelta(days=14),
         }
     )
+    m2.licence = "L2"
+    m2.save()
 
     # 5. Soumissions et notes
     sub1, _ = Submission.objects.get_or_create(
@@ -247,23 +253,40 @@ def seed():
     topic1, _ = ForumTopic.objects.get_or_create(
         title="Comment bien aborder la récursivité en Python ?",
         defaults={
+            "licence": "L1",
             "category": cat1,
             "course": c1,
-            "author": student1,
+            "author": student2,
             "content": "Bonjour à tous, j'ai un peu de mal avec les cas de base dans les fonctions récursives. Auriez-vous des exemples simples ou des conseils pour mieux visualiser le principe ?",
             "is_pinned": True,
         }
     )
+    topic1.licence = "L1"
+    topic1.save()
 
     ForumPost.objects.get_or_create(
         topic=topic1,
         author=teacher1,
         defaults={
-            "content": "Bonjour Alice ! Pense toujours à la récursivité comme une poupée russe. Le cas de base est la plus petite poupée qui s'ouvre d'elle-même sans nouvel appel. Nous reverrons cela ensemble lors du prochain TP !",
+            "content": "Bonjour ! Pense toujours à la récursivité comme une poupée russe. Le cas de base est la plus petite poupée qui s'ouvre d'elle-même sans nouvel appel. Nous reverrons cela ensemble lors du prochain TP !",
         }
     )
 
-    print("[OK] Forum initialisé avec des catégories et discussions de test.")
+    topic2, _ = ForumTopic.objects.get_or_create(
+        title="Conseils pour l'architecture Django et les modèles L2",
+        defaults={
+            "licence": "L2",
+            "category": cat2,
+            "course": c2,
+            "author": student1,
+            "content": "Bonjour la promo L2, comment organisez-vous les ForeignKey et relations ManyToMany dans vos applications ?",
+            "is_pinned": False,
+        }
+    )
+    topic2.licence = "L2"
+    topic2.save()
+
+    print("[OK] Forum initialisé avec des catégories et discussions par Licence.")
 
     # 8. Notifications de test
     from Comptes.models import Notification

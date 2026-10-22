@@ -460,6 +460,129 @@ class ComprehensivePlatformTests(TestCase):
         resp_t = self.client.get(reverse('announcement_list'))
         self.assertContains(resp_t, 'Rentrée Licence 1')
 
+    def test_assignment_licence_targeting_and_notifications(self):
+        from Comptes.models import Notification
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        # Create students for L1 and L2
+        s_l1 = User.objects.create_user(username='assign_student_l1', password='password123', user_type='student', licence='L1')
+        s_l2 = User.objects.create_user(username='assign_student_l2', password='password123', user_type='student', licence='L2')
+        self.course.students.add(s_l1, s_l2)
+
+        # Teacher creates assignment targeted specifically to L1
+        self.client.force_login(self.teacher)
+        due_date_str = (timezone.now() + timedelta(days=7)).strftime('%Y-%m-%dT%H:%M')
+        response = self.client.post(reverse('assignment_create'), {
+            'course': self.course.pk,
+            'licence': 'L1',
+            'title': 'TP Spécifique Licence 1',
+            'description': 'Devoir obligatoire pour les étudiants de L1 uniquement.',
+            'max_points': '20.00',
+            'due_date': due_date_str,
+        })
+        self.assertEqual(response.status_code, 302)
+        assign_l1 = Assignment.objects.get(title='TP Spécifique Licence 1')
+        self.assertEqual(assign_l1.licence, 'L1')
+
+        # 1. Verify notifications: student L1 got notification, student L2 did NOT
+        self.assertTrue(Notification.objects.filter(recipient=s_l1, title__icontains='TP Spécifique Licence 1').exists())
+        self.assertFalse(Notification.objects.filter(recipient=s_l2, title__icontains='TP Spécifique Licence 1').exists())
+
+        # 2. Verify listing: student L1 sees assign_l1, student L2 does not see assign_l1 in their default list
+        self.client.force_login(s_l1)
+        resp_l1 = self.client.get(reverse('assignment_list'))
+        self.assertContains(resp_l1, 'TP Spécifique Licence 1')
+
+        self.client.force_login(s_l2)
+        resp_l2 = self.client.get(reverse('assignment_list'))
+        self.assertNotContains(resp_l2, 'TP Spécifique Licence 1')
+
+        # 3. Access control: student L2 cannot submit the assignment targeted to L1
+        fake_pdf = SimpleUploadedFile("devoir.pdf", b"%PDF-1.4 test", content_type="application/pdf")
+        resp_sub_l2 = self.client.post(reverse('submit_assignment', args=[assign_l1.pk]), {
+            'file': fake_pdf
+        })
+        self.assertRedirects(resp_sub_l2, reverse('assignment_detail', args=[assign_l1.pk]))
+        self.assertFalse(Submission.objects.filter(assignment=assign_l1, student=s_l2).exists())
+
+        # 4. Student L1 CAN submit the assignment
+        self.client.force_login(s_l1)
+        fake_pdf_l1 = SimpleUploadedFile("mon_devoir_l1.pdf", b"%PDF-1.4 test l1", content_type="application/pdf")
+        resp_sub_l1 = self.client.post(reverse('submit_assignment', args=[assign_l1.pk]), {
+            'file': fake_pdf_l1
+        })
+        self.assertRedirects(resp_sub_l1, reverse('assignment_detail', args=[assign_l1.pk]))
+        self.assertTrue(Submission.objects.filter(assignment=assign_l1, student=s_l1).exists())
+
+    def test_forum_licence_partition_and_access_control(self):
+        from Forum.models import ForumCategory, ForumTopic, ForumPost
+
+        cat = ForumCategory.objects.create(name="Général", slug="general-test", icon="💬")
+        s_l1 = User.objects.create_user(username='forum_s1', password='password123', user_type='student', licence='L1')
+        s_l2 = User.objects.create_user(username='forum_s2', password='password123', user_type='student', licence='L2')
+
+        # Create topic in Forum L1 and topic in Forum L2
+        topic_l1 = ForumTopic.objects.create(
+            title="Discussion entraide Licence 1",
+            licence="L1",
+            category=cat,
+            author=s_l1,
+            content="Questions pour les L1 uniquement."
+        )
+        topic_l2 = ForumTopic.objects.create(
+            title="Discussion entraide Licence 2",
+            licence="L2",
+            category=cat,
+            author=s_l2,
+            content="Questions pour les L2 uniquement."
+        )
+        topic_all = ForumTopic.objects.create(
+            title="Discussion forum général tout campus",
+            licence="ALL",
+            category=cat,
+            author=self.admin,
+            content="Visible par tout le campus."
+        )
+
+        # 1. Student L1 sees topic_l1 and topic_all, but NOT topic_l2 in their topic_list
+        self.client.force_login(s_l1)
+        resp_l1 = self.client.get(reverse('topic_list'))
+        self.assertContains(resp_l1, "Discussion entraide Licence 1")
+        self.assertContains(resp_l1, "Discussion forum général tout campus")
+        self.assertNotContains(resp_l1, "Discussion entraide Licence 2")
+
+        # 2. Student L1 CANNOT view topic_l2 detail (blocked by access check)
+        resp_detail_l1 = self.client.get(reverse('topic_detail', args=[topic_l2.pk]))
+        self.assertRedirects(resp_detail_l1, reverse('topic_list'))
+
+        # 3. Student L1 CANNOT reply (post_create) to topic_l2
+        resp_post_l1 = self.client.post(reverse('post_create', args=[topic_l2.pk]), {
+            'content': 'Tentative de réponse non autorisée.'
+        })
+        self.assertRedirects(resp_post_l1, reverse('topic_list'))
+        self.assertFalse(ForumPost.objects.filter(topic=topic_l2, author=s_l1).exists())
+
+        # 4. Student L1 CAN view and reply to topic_l1
+        resp_detail_ok = self.client.get(reverse('topic_detail', args=[topic_l1.pk]))
+        self.assertEqual(resp_detail_ok.status_code, 200)
+        resp_post_ok = self.client.post(reverse('post_create', args=[topic_l1.pk]), {
+            'content': 'Super question, voici ma réponse.'
+        })
+        self.assertRedirects(resp_post_ok, reverse('topic_detail', args=[topic_l1.pk]))
+        self.assertTrue(ForumPost.objects.filter(topic=topic_l1, author=s_l1).exists())
+
+        # 5. Teacher and Admin can view all topics (L1, L2, ALL)
+        self.client.force_login(self.teacher)
+        resp_t = self.client.get(reverse('topic_list'))
+        self.assertContains(resp_t, "Discussion entraide Licence 1")
+        self.assertContains(resp_t, "Discussion entraide Licence 2")
+        self.assertContains(resp_t, "Discussion forum général tout campus")
+
+        resp_t_detail = self.client.get(reverse('topic_detail', args=[topic_l2.pk]))
+        self.assertEqual(resp_t_detail.status_code, 200)
+
+
+
 
 
 

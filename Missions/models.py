@@ -6,7 +6,21 @@ from Cours.models import Course
 from Codex.validators import validate_secure_file_extension, validate_file_size
 
 class Assignment(models.Model):
+    LICENCE_CHOICES = [
+        ("ALL", "Toutes les Licences"),
+        ("L1", "Licence 1 (L1)"),
+        ("L2", "Licence 2 (L2)"),
+        ("L3", "Licence 3 (L3)"),
+    ]
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="assignments")
+    licence = models.CharField(
+        max_length=10,
+        choices=LICENCE_CHOICES,
+        default="ALL",
+        blank=True,
+        verbose_name="Licence ciblée",
+        help_text="Choisissez la Licence concernée par cette mission (ou Toutes les Licences)."
+    )
     title = models.CharField(max_length=200)
     description = models.TextField()
     max_points = models.DecimalField(max_digits=5, decimal_places=2, default=20.00, verbose_name="Note maximale")
@@ -14,8 +28,20 @@ class Assignment(models.Model):
     due_date = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def user_has_access(self, user):
+        """Vérifie si un étudiant a accès à ce devoir en fonction de sa Licence."""
+        if not user or not user.is_authenticated:
+            return False
+        if user.is_teacher_or_admin:
+            return True
+        if user.user_type == 'student':
+            if self.licence and self.licence != 'ALL':
+                return user.licence == self.licence
+            return self.course.user_has_access(user)
+        return True
+
     def __str__(self):
-        return f"{self.course.code} – {self.title}"
+        return f"{self.course.code} – {self.title} ({self.get_licence_display()})"
 
 class Submission(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name="submissions")

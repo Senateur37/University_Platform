@@ -2,9 +2,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.db.models import Q
 from django import forms
 
 from Comptes.decorateurs import user_type_required
+from Comptes.models import Notification, User
 from Cours.models import Course
 from .models import Assignment, Submission
 
@@ -12,18 +14,22 @@ from .models import Assignment, Submission
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ('course', 'title', 'description', 'max_points', 'attachment', 'due_date')
+        fields = ('course', 'licence', 'title', 'description', 'max_points', 'attachment', 'due_date')
         widgets = {
             'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'attachment': forms.FileInput(attrs={'accept': '.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.jpg,.jpeg,.png'}),
         }
         labels = {
             'course': 'Cours associé',
+            'licence': 'Licence ciblée',
             'title': 'Titre de la mission',
             'description': 'Consignes / Description',
             'max_points': 'Note maximale (ex: 20)',
             'attachment': 'Sujet / Pièce jointe depuis votre PC (Optionnel)',
             'due_date': 'Date et heure limite',
+        }
+        help_texts = {
+            'licence': 'Choisissez la promotion concernée (L1, L2, L3) ou "Toutes les Licences" pour envoyer à tous.',
         }
 
 
@@ -50,8 +56,25 @@ class GradeForm(forms.ModelForm):
 
 
 def assignment_list(request):
+    selected_licence = request.GET.get('licence', '').strip()
     try:
-        assignments = list(Assignment.objects.select_related('course', 'course__teacher').order_by('due_date'))
+        queryset = Assignment.objects.select_related('course', 'course__teacher').order_by('due_date')
+
+        # Si l'utilisateur est étudiant, filtrer selon sa Licence ou devoirs ouverts à tous
+        if request.user.is_authenticated and request.user.user_type == 'student':
+            student_filter = Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True)
+            if request.user.licence:
+                student_filter |= Q(licence=request.user.licence)
+            queryset = queryset.filter(student_filter)
+
+        # Filtre explicite par onglet de Licence
+        if selected_licence:
+            if selected_licence == 'ALL':
+                queryset = queryset.filter(licence='ALL')
+            else:
+                queryset = queryset.filter(licence=selected_licence)
+
+        assignments = list(queryset)
     except Exception:
         assignments = []
     submissions_dict = {}
@@ -67,6 +90,8 @@ def assignment_list(request):
     return render(request, 'missions/list.html', {
         'assignments': assignments,
         'submissions_dict': submissions_dict,
+        'selected_licence': selected_licence,
+        'licence_choices': Assignment.LICENCE_CHOICES,
         'now': timezone.now(),
     })
 
@@ -80,10 +105,17 @@ def assignment_detail(request, pk):
     
     is_teacher_owner = (request.user == assignment.course.teacher or request.user.user_type == 'admin')
 
+    # Vérification de correspondance de licence pour l'étudiant
+    is_student_match = True
+    if request.user.user_type == 'student':
+        if assignment.licence and assignment.licence != 'ALL' and request.user.licence:
+            is_student_match = (request.user.licence == assignment.licence)
+
     return render(request, 'missions/detail.html', {
         'assignment': assignment,
         'submission': submission,
         'is_teacher_owner': is_teacher_owner,
+        'is_student_match': is_student_match,
         'now': timezone.now(),
     })
 
@@ -98,17 +130,28 @@ def assignment_create(request):
     if form.is_valid():
         assignment = form.save()
 
-        # Notify enrolled students
-        from Comptes.models import Notification
+        # Envoi ciblé des notifications aux étudiants selon la Licence
         from django.urls import reverse
         link = reverse('assignment_detail', args=[assignment.pk])
         recipients = assignment.course.students.exclude(pk=request.user.pk)
+
+        # Si une Licence précise est ciblée, filtrer les étudiants inscrits
+        if assignment.licence and assignment.licence != 'ALL':
+            recipients = recipients.filter(licence=assignment.licence)
+            licence_badge = f" ({assignment.licence})"
+        else:
+            licence_badge = ""
+
+        # Si aucun étudiant n'est encore inscrit au cours mais qu'une Licence est ciblée
+        if not recipients.exists() and assignment.licence and assignment.licence != 'ALL':
+            recipients = User.objects.filter(user_type='student', licence=assignment.licence).exclude(pk=request.user.pk)
+
         due_str = assignment.due_date.strftime('%d/%m/%Y') if assignment.due_date else ''
         notifs = [
             Notification(
                 recipient=u,
                 notification_type='assignment',
-                title=f"🎯 Nouvelle mission ({assignment.course.code}) : {assignment.title}",
+                title=f"🎯 Nouvelle mission{licence_badge} ({assignment.course.code}) : {assignment.title}",
                 message=f"À rendre avant le {due_str}",
                 link=link
             )
@@ -166,8 +209,8 @@ def assignment_delete(request, pk):
 @user_type_required('student')
 def submit_assignment(request, pk):
     assignment = get_object_or_404(Assignment.objects.select_related('course'), pk=pk)
-    if not assignment.course.user_has_access(request.user):
-        messages.error(request, f"Accès refusé : cette mission est réservée aux étudiants de {assignment.course.get_licence_display()}.")
+    if not assignment.user_has_access(request.user):
+        messages.error(request, f"Accès refusé : cette mission est réservée aux étudiants de {assignment.get_licence_display()}.")
         return redirect('assignment_detail', pk=assignment.pk)
 
     if not assignment.course.students.filter(pk=request.user.pk).exists():

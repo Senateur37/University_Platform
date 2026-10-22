@@ -100,7 +100,12 @@
           {% for assignment in assignments %}
           <div class="assignment-item">
             <div>
-              <strong>{{ assignment.title }}</strong>
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap;">
+                <strong>{{ assignment.title }}</strong>
+                <span class="mini-pill" style="{% if assignment.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif assignment.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif assignment.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-size:0.68rem;padding:2px 6px;border-radius:999px;font-weight:700;">
+                  🎓 {{ assignment.get_licence_display|default:'Toutes Licences' }}
+                </span>
+              </div>
               <div class="assignment-meta">Échéance : {{ assignment.due_date|date:'d/m/Y à H:i' }} · Max: {{ assignment.max_points }} pts</div>
             </div>
             <a href="{% url 'assignment_detail' assignment.pk %}" class="button secondary" style="padding:6px 14px;font-size:0.82rem;">Consulter</a>

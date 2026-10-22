@@ -88,6 +88,11 @@ def course_list(request):
 def course_detail(request, pk):
     course = get_object_or_404(Course.objects.select_related('teacher').prefetch_related('resources', 'students'), pk=pk)
     assignments = course.assignments.order_by('due_date')
+    if request.user.is_authenticated and request.user.user_type == 'student':
+        if request.user.licence:
+            assignments = assignments.filter(Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True) | Q(licence=request.user.licence))
+        else:
+            assignments = assignments.filter(Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True))
     announcements = course.announcements.select_related('author').order_by('-created_at')
     
     is_enrolled = False

@@ -9,6 +9,9 @@
 
   <article class="hero-banner" style="padding:28px 32px;">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+      <span class="mini-pill" style="{% if topic.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif topic.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif topic.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;padding:4px 10px;border-radius:999px;font-size:0.8rem;">
+        🎓 {{ topic.get_licence_display|default:'Forum Général' }}
+      </span>
       {% if topic.is_pinned %}<span class="pill warning">📌 Épinglé</span>{% endif %}
       {% if topic.is_closed %}<span class="pill danger">🔒 Verrouillé</span>{% endif %}
       {% if topic.category %}

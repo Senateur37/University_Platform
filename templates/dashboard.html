@@ -106,7 +106,13 @@
         <article class="assignment-item">
           <div>
             <strong><a href="{% url 'assignment_detail' assignment.pk %}" style="color:inherit;">{{ assignment.title }}</a></strong>
-            <div class="assignment-meta">{{ assignment.course.code }} · Limite : {{ assignment.due_date|date:'d/m/Y à H:i' }}</div>
+            <div class="assignment-meta">
+              {{ assignment.course.code }}
+              <span class="mini-pill" style="{% if assignment.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif assignment.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif assignment.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-size:0.68rem;padding:2px 6px;border-radius:999px;font-weight:700;">
+                🎓 {{ assignment.get_licence_display|default:'Toutes Licences' }}
+              </span>
+              · Limite : {{ assignment.due_date|date:'d/m/Y à H:i' }}
+            </div>
           </div>
 
           <div style="display:flex;gap:6px;align-items:center;">

@@ -7,22 +7,54 @@
     <div>
       <div class="eyebrow">Entraide & Échanges</div>
       <h1>Forum de discussion</h1>
+      {% if user.is_authenticated and user.user_type == 'student' and user.licence %}
+      <p class="muted" style="margin:4px 0 0;font-size:0.9rem;">
+        Espace réservé à votre promotion : <strong>Forum {{ user.get_licence_display }}</strong> &amp; Forum Général.
+      </p>
+      {% endif %}
     </div>
     {% if user.is_authenticated %}
     <a class="button primary" href="{% url 'topic_create' %}">💬 + Lancer une discussion</a>
     {% endif %}
   </div>
 
+  <!-- Filter Forum by Licence -->
+  <div class="filter-bar" style="margin-bottom:14px;gap:6px;align-items:center;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-right:4px;flex-shrink:0;">Espaces Forum :</span>
+    <a class="filter-tab {% if not selected_licence %}active{% endif %}" href="{% url 'topic_list' %}{% if selected_category %}?cat={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+      {% if user.is_authenticated and user.user_type == 'student' %}Toutes mes discussions{% else %}Tous les espaces{% endif %}
+    </a>
+    {% if user.is_teacher_or_admin or user.licence == 'L1' %}
+    <a class="filter-tab {% if selected_licence == 'L1' %}active{% endif %}" href="{% url 'topic_list' %}?licence=L1{% if selected_category %}&cat={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+      🎓 Forum Licence 1 (L1)
+    </a>
+    {% endif %}
+    {% if user.is_teacher_or_admin or user.licence == 'L2' %}
+    <a class="filter-tab {% if selected_licence == 'L2' %}active{% endif %}" href="{% url 'topic_list' %}?licence=L2{% if selected_category %}&cat={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+      🎓 Forum Licence 2 (L2)
+    </a>
+    {% endif %}
+    {% if user.is_teacher_or_admin or user.licence == 'L3' %}
+    <a class="filter-tab {% if selected_licence == 'L3' %}active{% endif %}" href="{% url 'topic_list' %}?licence=L3{% if selected_category %}&cat={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+      🎓 Forum Licence 3 (L3)
+    </a>
+    {% endif %}
+    <a class="filter-tab {% if selected_licence == 'ALL' %}active{% endif %}" href="{% url 'topic_list' %}?licence=ALL{% if selected_category %}&cat={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+      🌐 Forum Général
+    </a>
+  </div>
+
   <form method="get" class="search-bar" style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;width:100%;">
     <input type="text" name="q" value="{{ query }}" placeholder="Rechercher une discussion, un sujet, une question..." style="flex:1;min-width:180px;border-radius:14px;border:1px solid var(--line);padding:10px 14px;font-size:0.9rem;">
     {% if selected_category %}<input type="hidden" name="cat" value="{{ selected_category }}">{% endif %}
+    {% if selected_licence %}<input type="hidden" name="licence" value="{{ selected_licence }}">{% endif %}
     <button type="submit" class="button secondary" style="white-space:nowrap;">Rechercher</button>
   </form>
 
   <div class="filter-bar" style="margin-bottom:20px;">
-    <a class="filter-tab {% if not selected_category %}active{% endif %}" href="{% url 'topic_list' %}{% if query %}?q={{ query }}{% endif %}">Tout voir</a>
+    <a class="filter-tab {% if not selected_category %}active{% endif %}" href="{% url 'topic_list' %}{% if selected_licence %}?licence={{ selected_licence }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Toutes catégories</a>
     {% for cat in categories %}
-    <a class="filter-tab {% if selected_category == cat.slug %}active{% endif %}" href="{% url 'topic_list' %}?cat={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}">
+    <a class="filter-tab {% if selected_category == cat.slug %}active{% endif %}" href="{% url 'topic_list' %}?cat={{ cat.slug }}{% if selected_licence %}&licence={{ selected_licence }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
       {{ cat.icon }} {{ cat.name }}
     </a>
     {% endfor %}
@@ -45,6 +77,9 @@
 
         <div style="flex:1;min-width:0;max-width:100%;word-break:break-word;overflow-wrap:anywhere;">
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
+            <span class="mini-pill" style="{% if topic.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif topic.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif topic.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;padding:2px 8px;border-radius:999px;font-size:0.75rem;">
+              🎓 {{ topic.get_licence_display|default:'Forum Général' }}
+            </span>
             {% if topic.is_pinned %}<span class="pill warning" style="font-size:0.75rem;">📌 Épinglé</span>{% endif %}
             {% if topic.is_closed %}<span class="pill danger" style="font-size:0.75rem;">🔒 Verrouillé</span>{% endif %}
             {% if topic.category %}

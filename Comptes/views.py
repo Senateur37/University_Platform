@@ -206,7 +206,12 @@ def dashboard(request):
 
     if user.user_type == 'student':
         courses = user.enrolled_courses.select_related('teacher').all()
-        assignments = Assignment.objects.filter(course__in=courses).select_related('course').order_by('due_date')
+        assignment_filter = Q(course__in=courses)
+        if user.licence:
+            assignment_filter &= (Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True) | Q(licence=user.licence))
+        else:
+            assignment_filter &= (Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True))
+        assignments = Assignment.objects.filter(assignment_filter).select_related('course').order_by('due_date')
         submissions = {sub.assignment_id: sub for sub in Submission.objects.filter(student=user)}
         announcement_filter = Q(course__in=courses) | Q(licence='ALL') | Q(licence='') | Q(licence__isnull=True)
         if user.licence:

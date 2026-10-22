@@ -4,9 +4,12 @@
 <section class="assignment-detail-shell">
   <div class="dashboard-hero">
     <div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
         <span class="course-badge" style="background:var(--primary);color:white;">{{ assignment.course.code }}</span>
         <span class="pill info">{{ assignment.course.title }}</span>
+        <span class="mini-pill" style="{% if assignment.licence == 'L1' %}background:#e0e7ff;color:#4338ca;{% elif assignment.licence == 'L2' %}background:#dcfce7;color:#15803d;{% elif assignment.licence == 'L3' %}background:#fef3c7;color:#b45309;{% else %}background:#f1f5f9;color:#475569;{% endif %}font-weight:700;padding:4px 10px;border-radius:999px;font-size:0.8rem;">
+          🎓 {{ assignment.get_licence_display|default:'Toutes les Licences' }}
+        </span>
       </div>
       <h1>{{ assignment.title }}</h1>
       <p class="muted">
@@ -52,6 +55,13 @@
         <div class="panel-header">
           <h2>Mon travail</h2>
         </div>
+
+        {% if not is_student_match %}
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);padding:14px;border-radius:14px;margin-bottom:16px;">
+          <strong style="color:var(--danger);display:block;margin-bottom:4px;">⚠️ Promotion différente</strong>
+          <p style="font-size:0.85rem;margin:0;color:var(--ink);">Ce devoir est ciblé pour <strong>{{ assignment.get_licence_display }}</strong>. Votre profil indique <strong>{{ user.get_licence_display }}</strong>.</p>
+        </div>
+        {% endif %}
 
         {% if submission %}
           <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:16px;border-radius:16px;margin-bottom:16px;">
