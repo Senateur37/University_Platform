@@ -238,7 +238,7 @@ def post_delete(request, pk, post_pk):
 def topic_toggle_pin(request, pk):
     topic = get_object_or_404(ForumTopic, pk=pk)
     if not request.user.is_teacher_or_admin:
-        messages.error(request, "Action réservée aux enseignants et administrateurs.")
+        messages.error(request, "Action réservée aux professeurs et administrateurs.")
         return redirect('topic_detail', topic.pk)
 
     topic.is_pinned = not topic.is_pinned
@@ -252,7 +252,7 @@ def topic_toggle_pin(request, pk):
 def topic_toggle_close(request, pk):
     topic = get_object_or_404(ForumTopic, pk=pk)
     if not request.user.is_teacher_or_admin:
-        messages.error(request, "Action réservée aux enseignants et administrateurs.")
+        messages.error(request, "Action réservée aux professeurs et administrateurs.")
         return redirect('topic_detail', topic.pk)
 
     topic.is_closed = not topic.is_closed

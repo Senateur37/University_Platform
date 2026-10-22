@@ -31,7 +31,7 @@ def notifications_context(request):
                 {
                     'type': 'forum',
                     'title': '💬 Forum de discussion interactif',
-                    'message': 'Posez vos questions et échangez avec vos enseignants et camarades.',
+                    'message': 'Posez vos questions et échangez avec vos professeurs et camarades.',
                     'link': '/forum/'
                 }
             ]

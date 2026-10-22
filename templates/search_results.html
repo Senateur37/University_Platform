@@ -27,7 +27,7 @@
           <span class="mini-pill">{{ course.category }}</span>
         </div>
         <h3>{{ course.title }}</h3>
-        <p class="muted">Enseignant : {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
+        <p class="muted">Professeur : {{ course.teacher.get_full_name|default:course.teacher.username }}</p>
         <a class="button secondary" href="{% url 'course_detail' course.pk %}">Ouvrir le cours</a>
       </article>
       {% endfor %}

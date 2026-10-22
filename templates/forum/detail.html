@@ -133,7 +133,7 @@
 
     {% if topic.is_closed and not user.is_teacher_or_admin %}
     <div class="pill danger" style="padding:12px 18px;width:100%;text-align:center;font-size:0.9rem;">
-      🔒 Cette discussion a été verrouillée par un administrateur ou enseignant.
+      🔒 Cette discussion a été verrouillée par un administrateur ou professeur.
     </div>
     {% elif user.is_authenticated %}
     <form action="{% url 'post_create' topic.pk %}" method="post" style="display:grid;gap:14px;min-width:0;max-width:100%;">

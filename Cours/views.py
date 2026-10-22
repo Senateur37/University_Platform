@@ -30,7 +30,7 @@ class CourseForm(forms.ModelForm):
             'category': 'Filière / Catégorie',
             'licence': 'Licence concernée (Niveau requis)',
             'description': 'Description du cours',
-            'teacher': 'Enseignant responsable',
+            'teacher': 'Professeur responsable',
         }
         help_texts = {
             'licence': 'Indiquez quelle Licence ce cours concerne (Licence 1, Licence 2, Licence 3 ou Toutes les Licences).',

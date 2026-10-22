@@ -453,14 +453,14 @@ def reports_view(request):
         writer.writerow([])
         writer.writerow(['Metrique', 'Valeur'])
         writer.writerow(['Etudiants inscrits', total_students])
-        writer.writerow(['Enseignants', total_teachers])
+        writer.writerow(['Professeurs', total_teachers])
         writer.writerow(['Nombre de cours', total_courses])
         writer.writerow(['Missions (Devoirs)', total_assignments])
         writer.writerow(['Travaux rendus (Soumissions)', total_submissions])
         writer.writerow(['Moyenne generale campus (/20)', overall_avg_grade])
         writer.writerow([])
         writer.writerow(['Detail par cours'])
-        writer.writerow(['Code', 'Titre du cours', 'Enseignant', 'Etudiants inscrits', 'Devoirs', 'Ressources', 'Moyenne (/20)'])
+        writer.writerow(['Code', 'Titre du cours', 'Professeur', 'Etudiants inscrits', 'Devoirs', 'Ressources', 'Moyenne (/20)'])
         for cs in course_stats:
             avg_g = round(cs.avg_course_grade, 2) if cs.avg_course_grade is not None else 'N/A'
             writer.writerow([cs.code, cs.title, cs.teacher.get_full_name() or cs.teacher.username, cs.students_count, cs.assignments_count, cs.resources_count, avg_g])

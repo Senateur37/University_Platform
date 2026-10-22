@@ -7,7 +7,7 @@ from Codex.validators import validate_avatar_image, validate_file_size
 class User(AbstractUser):
     USER_TYPE_CHOICES = [
         ("student", "Étudiant"),
-        ("teacher", "Enseignant"),
+        ("teacher", "Professeur"),
         ("admin", "Administrateur"),
     ]
     LICENCE_CHOICES = [

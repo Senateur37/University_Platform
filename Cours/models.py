@@ -30,7 +30,7 @@ class Course(models.Model):
     def user_has_access(self, user):
         """
         Vérifie si l'utilisateur a le niveau d'accès complet au cours (inscription, documents, devoirs).
-        - Les enseignants et administrateurs accèdent à tout.
+        - Les professeurs et administrateurs accèdent à tout.
         - Un étudiant a accès si le cours est ouvert à 'ALL' ou correspond à sa Licence.
         """
         if not user or not user.is_authenticated:

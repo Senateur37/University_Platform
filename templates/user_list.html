@@ -44,7 +44,7 @@
               <select name="new_role" onchange="this.form.submit()"
                 style="padding:5px 10px;border-radius:10px;border:1px solid var(--line);font-size:0.82rem;font-weight:600;background:white;">
                 <option value="student" {% if u.user_type == 'student' %}selected{% endif %}>🎓 Étudiant</option>
-                <option value="teacher" {% if u.user_type == 'teacher' %}selected{% endif %}>👨‍🏫 Enseignant</option>
+                <option value="teacher" {% if u.user_type == 'teacher' %}selected{% endif %}>👨‍🏫 Professeur</option>
                 <option value="admin" {% if u.user_type == 'admin' %}selected{% endif %}>⚙️ Admin</option>
               </select>
             </form>

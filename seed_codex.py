@@ -43,7 +43,7 @@ def seed():
             "user_type": "teacher",
             "is_validated": True,
             "filiere": "Informatique",
-            "bio": "Enseignant-chercheur passionné d'Algorithmique et de Développement Web.",
+            "bio": "Professeur-chercheur passionné d'Algorithmique et de Développement Web.",
         }
     )
     teacher1.set_password("prof1234")
@@ -96,7 +96,7 @@ def seed():
     student2.set_password("etudiant123")
     student2.save()
 
-    print("[OK] Utilisateurs crees (admin: admin/admin123, enseignants: prof_martin/prof1234, etudiants: alice/etudiant123).")
+    print("[OK] Utilisateurs crees (admin: admin/admin123, professeurs: prof_martin/prof1234, etudiants: alice/etudiant123).")
 
     # 2. Création des cours
     c1, _ = Course.objects.get_or_create(

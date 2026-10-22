@@ -40,7 +40,7 @@
         <div style="margin-top:20px;padding:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:16px;display:flex;align-items:center;justify-content:space-between;">
           <div>
             <strong>📎 Document / Sujet joint</strong>
-            <div class="muted" style="font-size:0.84rem;">Fichier mis à disposition par l'enseignant</div>
+            <div class="muted" style="font-size:0.84rem;">Fichier mis à disposition par le professeur</div>
           </div>
           <a href="{{ assignment.attachment.url }}" class="button primary" style="padding:6px 14px;font-size:0.82rem;" target="_blank">📥 Télécharger le sujet</a>
         </div>
@@ -75,13 +75,13 @@
               <strong style="color:var(--primary);font-size:1.1rem;display:block;margin-bottom:4px;">Résultat : {{ submission.grade }} / {{ assignment.max_points }}</strong>
               {% if submission.feedback %}
               <div style="margin-top:8px;">
-                <span class="muted" style="font-size:0.8rem;display:block;">Commentaire de l'enseignant :</span>
+                <span class="muted" style="font-size:0.8rem;display:block;">Commentaire du professeur :</span>
                 <p style="font-size:0.9rem;margin:4px 0 0;font-style:italic;">« {{ submission.feedback }} »</p>
               </div>
               {% endif %}
             </div>
           {% else %}
-            <p class="muted" style="font-size:0.88rem;">Votre copie n'a pas encore été notée par l'enseignant.</p>
+            <p class="muted" style="font-size:0.88rem;">Votre copie n'a pas encore été notée par le professeur.</p>
           {% endif %}
 
           <a href="{% url 'submit_assignment' assignment.pk %}" class="button secondary" style="width:100%;text-align:center;">Remplacer mon fichier</a>
