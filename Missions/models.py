@@ -61,6 +61,16 @@ class Assignment(models.Model):
     def __str__(self):
         return f"{self.course.code} – {self.title} ({self.get_licence_display()})"
 
+    @property
+    def safe_attachment_url(self):
+        """Retourne l'URL de la pièce jointe sans lever de ValueError si aucun fichier n'est associé."""
+        try:
+            if self.attachment and hasattr(self.attachment, 'url') and self.attachment.name:
+                return self.attachment.url
+        except Exception:
+            pass
+        return None
+
 class Submission(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name="submissions")
     student = models.ForeignKey(
@@ -73,6 +83,16 @@ class Submission(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
     feedback = models.TextField(blank=True)
+
+    @property
+    def safe_file_url(self):
+        """Retourne l'URL du fichier soumis sans lever de ValueError si aucun fichier n'est associé."""
+        try:
+            if self.file and hasattr(self.file, 'url') and self.file.name:
+                return self.file.url
+        except Exception:
+            pass
+        return None
 
     def save(self, *args, **kwargs):
         if self.file:

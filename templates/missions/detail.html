@@ -36,13 +36,13 @@
         </div>
         <p style="line-height:1.7;white-space:pre-line;">{{ assignment.description }}</p>
 
-        {% if assignment.attachment %}
+        {% if assignment.safe_attachment_url %}
         <div style="margin-top:20px;padding:16px;background:rgba(79,70,229,0.06);border:1px solid rgba(79,70,229,0.15);border-radius:16px;display:flex;align-items:center;justify-content:space-between;">
           <div>
             <strong>📎 Document / Sujet joint</strong>
             <div class="muted" style="font-size:0.84rem;">Fichier mis à disposition par le professeur</div>
           </div>
-          <a href="{{ assignment.attachment.url }}" class="button primary" style="padding:6px 14px;font-size:0.82rem;" target="_blank">📥 Télécharger le sujet</a>
+          <a href="{{ assignment.safe_attachment_url }}" class="button primary" style="padding:6px 14px;font-size:0.82rem;" target="_blank">📥 Télécharger le sujet</a>
         </div>
         {% endif %}
       </article>
@@ -67,7 +67,11 @@
           <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);padding:16px;border-radius:16px;margin-bottom:16px;">
             <strong style="color:#047857;display:block;margin-bottom:4px;">✅ Travail rendu</strong>
             <p style="font-size:0.85rem;margin:0 0 8px;" class="muted">Soumis le {{ submission.submitted_at|date:'d/m/Y H:i' }}</p>
-            <a href="{{ submission.file.url }}" target="_blank" style="font-size:0.88rem;color:var(--primary);font-weight:700;">📄 Voir le fichier déposé</a>
+            {% if submission.safe_file_url %}
+            <a href="{{ submission.safe_file_url }}" target="_blank" style="font-size:0.88rem;color:var(--primary);font-weight:700;">📄 Voir le fichier déposé</a>
+            {% else %}
+            <span class="muted" style="font-size:0.85rem;">📄 Travail enregistré en ligne</span>
+            {% endif %}
           </div>
 
           {% if submission.grade is not None %}

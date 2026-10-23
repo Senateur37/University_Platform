@@ -230,14 +230,20 @@ def seed():
             "feedback": "Excellente mise en oeuvre du tri fusion et analyse tres claire des performances !",
         }
     )
+    if not sub1.file or not sub1.file_base64:
+        sub1.file.save("Rendu_TP1_Alice.pdf", ContentFile(sample_pdf_bytes), save=False)
+        sub1.save()
 
-    Submission.objects.get_or_create(
+    sub2, _ = Submission.objects.get_or_create(
         assignment=m1,
         student=student2,
         defaults={
             "feedback": "Copie recue, en cours de correction.",
         }
     )
+    if not sub2.file or not sub2.file_base64:
+        sub2.file.save("Rendu_TP1_Bob.pdf", ContentFile(sample_pdf_bytes), save=False)
+        sub2.save()
 
     print("[OK] Missions et soumissions enregistrees.")
 

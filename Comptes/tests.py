@@ -611,6 +611,38 @@ class ComprehensivePlatformTests(TestCase):
         resp_t_detail = self.client.get(reverse('topic_detail', args=[topic_l2.pk]))
         self.assertEqual(resp_t_detail.status_code, 200)
 
+    def test_submission_and_assignment_detail_without_file(self):
+        """Vérifie que la page de détail d'un devoir s'affiche sans erreur même si la soumission n'a pas de fichier associé."""
+        assign_no_att = Assignment.objects.create(
+            course=self.course,
+            licence='ALL',
+            title='Devoir Sans Piece Jointe',
+            description='Test sans pièce jointe',
+            max_points=20.00,
+            due_date=timezone.now() + timedelta(days=5)
+        )
+        # Créer une soumission sans fichier (file='')
+        sub = Submission.objects.create(
+            assignment=assign_no_att,
+            student=self.student,
+            file='',
+            feedback='Bien reçu'
+        )
+
+        # Connecter l'étudiant et charger la page de détail de la mission
+        self.client.force_login(self.student)
+        response = self.client.get(reverse('assignment_detail', args=[assign_no_att.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Travail rendu')
+        self.assertContains(response, 'Devoir Sans Piece Jointe')
+
+        # Connecter le professeur et charger la liste des soumissions
+        self.client.force_login(self.teacher)
+        resp_subs = self.client.get(reverse('assignment_submissions', args=[assign_no_att.pk]))
+        self.assertEqual(resp_subs.status_code, 200)
+        self.assertContains(resp_subs, self.student.username)
+
+
 
 
 

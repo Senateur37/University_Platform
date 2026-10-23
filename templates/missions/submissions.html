@@ -32,8 +32,8 @@
           </td>
           <td style="padding:12px 14px;">{{ sub.submitted_at|date:'d/m/Y H:i' }}</td>
           <td style="padding:12px 14px;">
-            {% if sub.file %}
-            <a href="{{ sub.file.url }}" target="_blank" class="button ghost" style="padding:4px 10px;font-size:0.8rem;">📄 Fichier</a>
+            {% if sub.safe_file_url %}
+            <a href="{{ sub.safe_file_url }}" target="_blank" class="button ghost" style="padding:4px 10px;font-size:0.8rem;">📄 Fichier</a>
             {% else %}
             <span class="muted" style="font-size:0.8rem;">—</span>
             {% endif %}

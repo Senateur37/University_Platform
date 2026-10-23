@@ -56,6 +56,16 @@ class CourseResource(models.Model):
     description = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def safe_file_url(self):
+        """Retourne l'URL du fichier ressource sans lever de ValueError si aucun fichier n'est associé."""
+        try:
+            if self.file and hasattr(self.file, 'url') and self.file.name:
+                return self.file.url
+        except Exception:
+            pass
+        return None
+
     def save(self, *args, **kwargs):
         if self.file:
             try:
